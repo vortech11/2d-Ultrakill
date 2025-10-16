@@ -14,6 +14,13 @@ class Camera:
         transformed = transformed + Vector2(self.screenSize / 2)
         return transformed
     
+    def unTransformPoint(self, point:Vector2):
+        transformed: Vector2 = point - Vector2(self.screenSize / 2)
+        transformed /= self.zoom
+        transformed.rotate_rad_ip(-self.rotation)
+        transformed += self.position
+        return transformed
+    
     def getRectPoints(self, center: Vector2, apothem: float) -> list[Vector2]:
         return [
                 center - Vector2(apothem, apothem), 

@@ -24,8 +24,6 @@ world = Geometry()
 
 world.loadGeometryFile("level.json")
 
-world.render(camera, screen)
-
 dt = 1
 
 while running:
