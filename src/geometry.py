@@ -55,9 +55,6 @@ class Geometry:
         
         with open(self.currentFilePath, "w") as file:
             json.dump(outGeometry, file)
-            
-    def getRectPoints(self, points: list[Vector2]):
-        return points[0]
         
     def renderRects(self, camera, screen):
         for rect in self.geometry["rect"]:
@@ -71,18 +68,36 @@ class Geometry:
         self.renderRects(camera, screen)
         
         self.renderPoly(camera, screen)
+        
+    def isPointRectColliding(self, point: Vector2, rect: list[Vector2]):
+        return (rect[0].x < point.x < rect[1].x) and (rect[0].y < point.y < rect[1].y)
+    
+    def triArea(self, p1: Vector2, p2: Vector2, p3: Vector2):
+        return abs((p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)) / 2.0)
+    
+    def isPointTriColliding(self, point: Vector2, tri: list[Vector2]):
+        p1 = tri[0]
+        p2 = tri[1]
+        p3 = tri[2]
+        
+        A = self.triArea(p1, p2, p3)
+        
+        A1 = self.triArea(point, p2, p3)
+        A2 = self.triArea(p1, point, p3)
+        A3 = self.triArea(p1, p2, point)
+        
+        if A == A1 + A2 + A3:
+            return True
+        return False
     
     def isPointColliding(self, point: Vector2):
-        data = []
-        print(point)
+        data = {"rect": [], "tri": []}
         for index, item in enumerate(self.geometry["rect"]):
-            print(item)
-            if pygame.Rect.collidepoint(pygame.Rect(item["points"][0].x, item["points"][0].y, item["points"][1].x, item["points"][1].y), (point.x, point.y)):
-                data.append(index)
-        #if len(data) > 0:
-        #    data = [data[-1]]
-        #else:
-        #    data = []
+            if self.isPointRectColliding(point, item["points"]):
+                data["rect"].append(index)
+        for index, item in enumerate(self.geometry["tri"]):
+            if self.isPointTriColliding(point, item["points"]):
+                data["tri"].append(index)
         return data
 
     def isColliding(self, point: Vector2):

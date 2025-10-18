@@ -29,11 +29,47 @@ world = Geometry()
 
 world.loadGeometryFile("level.json")
 
+class modes(Enum):
+    normal = 0
+    rect = 1
+    triangle = 2
+    delete = 3
+    color = 4
+    
+class colors(Enum):
+    darkGrey = (50, 50, 50)
+    lightGrey = (100, 100, 100)
+    green = (31, 158, 27)
+
+colorsList = [color.value for color in colors]
+
 class Editor():
     def __init__(self):
         self.mode = modes.normal
         self.pointData = []
+        self.displayText = "0"
         self.drawColor = (100, 100, 100)
+        
+    def fixRectWrapping(self, rect: list[Vector2]):
+        if rect[0].x > rect[1].x:
+            rect[0].x, rect[1].x = rect[1].x, rect[0].x
+        if rect[0].y > rect[1].y:
+            rect[0].y, rect[1].y = rect[1].y, rect[0].y
+        return rect
+    
+    def fixTriWrapping(self, tri: list[Vector2]):
+        p1 = tri[0]
+        p2 = tri[1]
+        p3 = tri[2]
+        cross_product = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)
+        if cross_product > 0:
+            tri = [p1, p3, p2]
+            return tri
+        tri = [p1, p2, p3]
+        return tri
+    
+    def roundVector(self, vec: Vector2):
+        return Vector2(round(vec.x, -1), round(vec.y, -1))
 
     def userInput(self):
         global running
@@ -53,6 +89,8 @@ class Editor():
                     self.mode = modes.triangle
                 if event.key == pygame.K_TAB:
                     self.mode = modes.delete
+                if event.key == pygame.K_q:
+                    self.mode = modes.color
                 if event.key == pygame.K_ESCAPE:
                     self.mode = modes.normal
                     self.pointData = []
@@ -74,11 +112,13 @@ class Editor():
 
         match self.mode:
             case modes.rect:
+                self.displayText = f"{len(self.pointData)}"
                 if mouseKeys[1]:
-                    self.pointData.append(camera.unTransformPoint(mousePos))
+                    self.pointData.append(self.roundVector(camera.unTransformPoint(mousePos)))
                 if len(self.pointData) > 0:
-                    pygame.draw.polygon(screen, self.drawColor, world.generateRectPolyPoints([camera.transformPoint(self.pointData[0]), mousePos]))
+                    pygame.draw.polygon(screen, self.drawColor, world.generateRectPolyPoints([camera.transformPoint(self.pointData[0]), camera.transformPoint(self.roundVector(camera.unTransformPoint(mousePos)))]))
                 if len(self.pointData) == 2:
+                    self.pointData = self.fixRectWrapping(self.pointData)
                     world.geometry["rect"].append({
                         "points": self.pointData,
                         "renderPoints": world.generateRectPolyPoints(self.pointData),
@@ -87,11 +127,15 @@ class Editor():
                     self.pointData = []
                     self.mode = modes.normal
             case modes.triangle:
+                self.displayText = f"{len(self.pointData)}"
                 if mouseKeys[1]:
-                    self.pointData.append(camera.unTransformPoint(mousePos))
-                if len(self.pointData) > 0:
-                    pygame.draw.polygon(screen, self.drawColor, world.generateRectPolyPoints([camera.transformPoint(self.pointData[0]), mousePos]))
+                    self.pointData.append(self.roundVector(camera.unTransformPoint(mousePos)))
+                if len(self.pointData) == 1:
+                    pygame.draw.polygon(screen, self.drawColor, [camera.transformPoint(self.pointData[0]), camera.transformPoint(self.pointData[0] + Vector2(10, -10)), camera.transformPoint(self.roundVector(camera.unTransformPoint(mousePos)))])
+                if len(self.pointData) == 2:
+                    pygame.draw.polygon(screen, self.drawColor, [camera.transformPoint(self.pointData[0]), camera.transformPoint(self.pointData[1]), camera.transformPoint(self.roundVector(camera.unTransformPoint(mousePos)))])
                 if len(self.pointData) == 3:
+                    self.pointData = self.fixTriWrapping(self.pointData)
                     world.geometry["tri"].append({
                         "points": self.pointData,
                         "color": [self.drawColor[0], self.drawColor[1], self.drawColor[2]]
@@ -100,24 +144,38 @@ class Editor():
                     self.mode = modes.normal
             case modes.delete:
                 if mouseKeys[1]:
-                    print(world.isPointColliding(camera.unTransformPoint(mousePos)))
-                    #print(world.isPointColliding(Vector2(150, 50)))
+                    toBeDel = world.isPointColliding(camera.unTransformPoint(mousePos))
+                    if len(toBeDel["rect"]) > 0:
+                        del world.geometry["rect"][toBeDel["rect"][-1]]
+                    if len(toBeDel["tri"]) > 0:
+                        del world.geometry["tri"][toBeDel["tri"][-1]]
+            case modes.color:
+                self.displayText = f"{colors(self.drawColor).name}"
+                if keys[pygame.K_1]:
+                    self.drawColor = pygame.Color(colorsList[0])
+                if keys[pygame.K_2]:
+                    self.drawColor = pygame.Color(colorsList[1])
+                if keys[pygame.K_3]:
+                    self.drawColor = pygame.Color(colorsList[2])
+                    
+            case modes.normal:
+                self.displayText = ""
+                
 
         player.movePlayerDirection(dt, direction, camera, world)
 
-class modes(Enum):
-    normal = 0
-    rect = 1
-    triangle = 2
-    delete = 3
+
     
 editor = Editor()
 
 def displayMode():
-    text_surface = DEBUG_FONT.render(f"{modes(editor.mode).name} {len(editor.pointData)}", True, (255, 255, 255))
+    text_surface = DEBUG_FONT.render(f"{modes(editor.mode).name} {editor.displayText}", True, (255, 255, 255))
     screen.blit(text_surface, (10, 10))
 
 dt = 1
+
+player.noclip = True
+player.speed = 450
 
 while running:
     dt = clock.tick(60) / 1000.0

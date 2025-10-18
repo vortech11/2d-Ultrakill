@@ -5,26 +5,28 @@ from pygame import draw
 class Player:
     def __init__(self):
         self.position: Vector2 = Vector2(100, 100)
-        self.speed = 450
+        self.speed = 200
         self.size = 20
         self.color = (240, 24, 24)
         self.noclip = False
 
     def isPlayerColliding(self, world):
-        collidingPoints = [world.isColliding(point) for point in self.getPlayerWorldBB()]
-        return any(collidingPoints)
-
+        ...
+        
+        
     def movePlayerDirection(self, dt, direction: Vector2, camera, world):
         change = direction * self.speed * dt
 
         self.position.x += change.x
-        if self.isPlayerColliding(world):
-            self.position.x -= change.x
+        if not self.noclip:
+            if self.isPlayerColliding(world):
+                self.position.x -= change.x
         
         self.position.y += change.y
 
-        if self.isPlayerColliding(world):
-            self.position.y -= change.y
+        if not self.noclip:
+            if self.isPlayerColliding(world):
+                self.position.y -= change.y
 
         camera.position += (self.position - camera.position) * 0.2
         
