@@ -3,7 +3,7 @@ from pygame import Vector2
 from pygame import draw
 import pygame
 
-from math import copysign
+from math import sqrt
 
 def clamp(minimum, x, maximum):
     return max(minimum, min(x, maximum))
@@ -28,8 +28,13 @@ class Player:
         self.gravity = 1
         self.jumpping = False
         self.jumpSpeed = -25
-        self.grounded = False
+        self.slamJumpSpeed = -30
+        self.slamSpeed = 50
+        self.grounded = 0
+        self.closeGrounded = False
         self.slide = False
+        self.slam = False
+        self.startSlam = 0
 
     def isPlayerColliding(self, world):
         rectColliding = world.isRectColliding(self.getPlayerRectBB())
@@ -37,50 +42,22 @@ class Player:
         return [rectColliding, polyColliding]
     
     def updateGrounded(self, world):
-        self.position.y += 5
+        self.position.y += 20
         if any(self.isPlayerColliding(world)):
-            self.grounded = True
+            self.grounded = min(self.grounded + 1, 10)
         else:
-            self.grounded = False
-        self.position.y -= 5
+            self.grounded = max(self.grounded - 1, 0)
+        self.position.y -= 20
         
-    def movePlayerDirection(self, dt, direction: Vector2, camera, world):
-        if self.noclip:
-            self.position += direction * 1000 * dt
-            camera.position += (self.position - camera.position)
-            return
-        
-        self.updateGrounded(world)
-        
-        if self.grounded:
-            self.maxSpeed = 15
+    def updateCloseGrounded(self, world):
+        self.position.y += 100
+        if any(self.isPlayerColliding(world)):
+            self.closeGrounded = True
         else:
-            self.maxSpeed = 20
-            self.airAccel = 50
-            self.airResistance = 1
-            
-        if self.grounded:
-            if direction == Vector2(0, 0):
-                self.velosity.x -= self.velosity.x
-            else:
-                if abs(self.velosity.x) < self.maxSpeed:
-                    self.velosity.x += direction.x * (self.maxSpeed - abs(self.velosity.x))
-                elif not same_sign(direction.x, self.velosity.x):
-                    self.velosity.x = self.maxSpeed * direction.x
-        else:
-            if direction == Vector2(0, 0):
-                self.velosity.x -= self.velosity.x * self.airResistance * dt
-            else:
-                if abs(self.velosity.x) < self.maxSpeed or not same_sign(direction.x, self.velosity.x):
-                    self.velosity.x += direction.x * self.airAccel * dt
+            self.closeGrounded = False
+        self.position.y -= 100
         
-        self.velosity.y += self.gravity
-        
-        if self.jumpping:
-            if self.grounded:
-                self.velosity.y += self.jumpSpeed
-            self.jumpping = False
-
+    def updatePlayerPosition(self, world):
         self.position.x += self.velosity.x
         if self.isPlayerColliding(world)[1]:
             stepup = int(abs(3 * self.velosity.x) + 1)
@@ -101,8 +78,67 @@ class Player:
         self.position.y += self.velosity.y
 
         if any(self.isPlayerColliding(world)):
+            self.slam = max(self.slam -1, 0)
             self.position.y -= self.velosity.y
             self.velosity.y = 0
+            
+    def movePlayerDirection(self, dt, direction: Vector2, camera, world):
+        if self.noclip:
+            self.position += direction * 1000 * dt
+            camera.position += (self.position - camera.position)
+            return
+        
+        self.updateGrounded(world)
+        self.updateCloseGrounded(world)
+        
+        if self.grounded > 0:
+            self.maxSpeed = 15
+        else:
+            self.maxSpeed = 20
+            self.airAccel = 50
+            self.airResistance = 1
+        
+        
+        if self.slam > 0:
+            self.velosity = Vector2(0, self.slamSpeed)
+                
+        if not (self.closeGrounded or self.grounded > 0):
+            if self.slide and self.slam == 0:
+                self.slam = 10
+                self.startSlam = self.position.y
+                
+        elif self.closeGrounded:
+            ...
+        
+        if self.grounded > 0:
+            if direction == Vector2(0, 0):
+                self.velosity.x -= self.velosity.x
+            else:
+                if abs(self.velosity.x) < self.maxSpeed:
+                    self.velosity.x += direction.x * (self.maxSpeed - abs(self.velosity.x))
+                elif not same_sign(direction.x, self.velosity.x):
+                    self.velosity.x = self.maxSpeed * direction.x
+        else:
+            if direction == Vector2(0, 0):
+                self.velosity.x -= self.velosity.x * self.airResistance * dt
+            else:
+                if abs(self.velosity.x) < self.maxSpeed or not same_sign(direction.x, self.velosity.x):
+                    self.velosity.x += direction.x * self.airAccel * dt
+        
+        self.velosity.y += self.gravity
+        
+        if self.jumpping:
+            if self.slam > 0:
+                if self.closeGrounded:
+                    self.velosity.y = min(-2*sqrt(max(self.position.y - self.startSlam, 0) * self.gravity/2), self.slamJumpSpeed)
+                    self.slam = 0
+                    self.slide = False
+            elif self.grounded > 0:
+                self.velosity.y = self.jumpSpeed
+                self.grounded = 0
+            self.jumpping = False
+
+        self.updatePlayerPosition(world)
 
         camera.position += (self.position - camera.position) * 0.2
         

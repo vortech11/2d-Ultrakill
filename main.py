@@ -35,6 +35,9 @@ while running:
                 player.jumpping = True
             if event.key == pygame.K_LCTRL:
                 player.slide = True
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LCTRL:
+                player.slide = False
     
     dt = clock.tick(60) / 1000.0
     
@@ -43,6 +46,7 @@ while running:
     direction: Vector2 = Vector2(0, 0)
     direction.x = keys[pygame.K_d] - keys[pygame.K_a]
     direction.y = keys[pygame.K_w] - keys[pygame.K_s]
+    
 
     camera.rotation += (keys[pygame.K_LEFT] - keys[pygame.K_RIGHT]) * 1 * dt
     camera.zoom += (keys[pygame.K_UP] - keys[pygame.K_DOWN]) * 2 * dt * camera.zoom
