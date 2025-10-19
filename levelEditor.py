@@ -100,6 +100,8 @@ class Editor():
         keys = pygame.key.get_pressed()
         mousePos = Vector2(pygame.mouse.get_pos())
         #mouseKeys = pygame.mouse.get_pressed()
+        
+        player.noclip = not keys[pygame.K_LSHIFT]
 
         direction: Vector2 = Vector2(0, 0)
         direction.x = keys[pygame.K_d] - keys[pygame.K_a]
@@ -185,6 +187,8 @@ while running:
     displayMode()
 
     world.render(camera, screen)
+    
+    player.renderPlayer(screen, camera)
     
     editor.userInput()
     

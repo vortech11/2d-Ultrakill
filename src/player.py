@@ -13,7 +13,7 @@ class Player:
 
     def isPlayerColliding(self, world):
         rectColliding = world.isRectColliding(self.getPlayerRectBB())
-        polyColliding = world.isPolyColliding(self.getPlayerRectBB())
+        polyColliding = world.isPolyColliding(self.getPlayerWorldBB())
         return rectColliding or polyColliding
         
     def movePlayerDirection(self, dt, direction: Vector2, camera, world):

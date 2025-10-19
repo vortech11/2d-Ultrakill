@@ -102,11 +102,15 @@ class Geometry:
         return data
     
     def isLineLineColliding(self, p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2):
-        UA = ((p4.x-p3.x)*(p1.y-p3.y) - (p4.y-p3.y)*(p1.x-p3.x)) / ((p4.y-p3.y)*(p2.x-p1.x) - (p4.x-p3.x)*(p2.y-p1.y))
+        denom = ((p4.y - p3.y) * (p2.x - p1.x)) - ((p4.x - p3.x) * (p2.y - p1.y))
+        # If denom is zero (or very close), lines are parallel or collinear — treat as no intersection here
+        if abs(denom) < 1e-9:
+            return False
 
-        UB = ((p2.x-p1.x)*(p1.y-p3.y) - (p2.y-p1.y)*(p1.x-p3.x)) / ((p4.y-p3.y)*(p2.x-p1.x) - (p4.x-p3.x)*(p2.y-p1.y))
+        UA = (((p4.x - p3.x) * (p1.y - p3.y)) - ((p4.y - p3.y) * (p1.x - p3.x))) / denom
+        UB = (((p2.x - p1.x) * (p1.y - p3.y)) - ((p2.y - p1.y) * (p1.x - p3.x))) / denom
         
-        return UA >= 0 and UA <= 1 and UB >= 0 and UB <= 1
+        return 0.0 <= UA <= 1.0 and 0.0 <= UB <= 1.0
     
     def isLinePolyColliding(self, p1: Vector2, p2: Vector2, poly: list[Vector2]):
         return any([self.isLineLineColliding(p1, p2, point, poly[(index + 1) % len(poly)]) for index, point in enumerate(poly)])
