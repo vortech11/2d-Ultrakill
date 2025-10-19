@@ -69,6 +69,9 @@ class Geometry:
         
         self.renderPoly(camera, screen)
         
+    def generateRect(self, pointList: list[Vector2]):
+        return pygame.Rect(pointList[0].x, pointList[0].y, pointList[1].x, pointList[1].y)
+        
     def isPointRectColliding(self, point: Vector2, rect: list[Vector2]):
         return (rect[0].x < point.x < rect[1].x) and (rect[0].y < point.y < rect[1].y)
     
@@ -86,9 +89,7 @@ class Geometry:
         A2 = self.triArea(p1, point, p3)
         A3 = self.triArea(p1, p2, point)
         
-        if A == A1 + A2 + A3:
-            return True
-        return False
+        return A == A1 + A2 + A3
     
     def isPointColliding(self, point: Vector2):
         data = {"rect": [], "tri": []}
@@ -99,6 +100,29 @@ class Geometry:
             if self.isPointTriColliding(point, item["points"]):
                 data["tri"].append(index)
         return data
+    
+    def isLineLineColliding(self, p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2):
+        UA = ((p4.x-p3.x)*(p1.y-p3.y) - (p4.y-p3.y)*(p1.x-p3.x)) / ((p4.y-p3.y)*(p2.x-p1.x) - (p4.x-p3.x)*(p2.y-p1.y))
+
+        UB = ((p2.x-p1.x)*(p1.y-p3.y) - (p2.y-p1.y)*(p1.x-p3.x)) / ((p4.y-p3.y)*(p2.x-p1.x) - (p4.x-p3.x)*(p2.y-p1.y))
+        
+        return UA >= 0 and UA <= 1 and UB >= 0 and UB <= 1
+    
+    def isLinePolyColliding(self, p1: Vector2, p2: Vector2, poly: list[Vector2]):
+        return any([self.isLineLineColliding(p1, p2, point, poly[(index + 1) % len(poly)]) for index, point in enumerate(poly)])
+    
+    def isLineColliding(self, p1: Vector2, p2: Vector2):
+        return any([self.isLinePolyColliding(p1, p2, poly["points"]) for poly in self.geometry["tri"]])
+    
+    def isPolyColliding(self, poly: list[Vector2]):
+        return any([self.isLineColliding(point, poly[(index + 1) % len(poly)]) for index, point in enumerate(poly)])
+    
+    def isRectRectColliding(self, rect1: list[Vector2], rect2: list[Vector2]):
+        return rect1[0].x < rect2[1].x and rect1[1].x > rect2[0].x and rect1[0].y < rect2[1].y and rect1[1].y > rect2[0].y
+            
+    def isRectColliding(self, inputRect):
+        #return any([pygame.Rect.colliderect(self.generateRect(inputRect), self.generateRect(rect["points"])) for rect in self.geometry["rect"]])              WTF is wrong with this???????
+        return any([self.isRectRectColliding(inputRect, rect["points"]) for rect in self.geometry["rect"]])
 
     def isColliding(self, point: Vector2):
         return False

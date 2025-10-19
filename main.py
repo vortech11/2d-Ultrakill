@@ -52,6 +52,8 @@ while running:
     world.render(camera, screen)
 
     player.renderPlayer(screen, camera)
+    
+    camera.renderFPS(clock, screen)
 
     pygame.display.update()
 

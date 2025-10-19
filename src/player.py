@@ -1,6 +1,7 @@
 from pygame import Vector2
 
 from pygame import draw
+import pygame
 
 class Player:
     def __init__(self):
@@ -11,8 +12,9 @@ class Player:
         self.noclip = False
 
     def isPlayerColliding(self, world):
-        ...
-        
+        rectColliding = world.isRectColliding(self.getPlayerRectBB())
+        polyColliding = world.isPolyColliding(self.getPlayerRectBB())
+        return rectColliding or polyColliding
         
     def movePlayerDirection(self, dt, direction: Vector2, camera, world):
         change = direction * self.speed * dt
@@ -30,6 +32,11 @@ class Player:
 
         camera.position += (self.position - camera.position) * 0.2
         
+    def getPlayerRectBB(self):
+        return [
+            self.position - Vector2(self.size, self.size), 
+            self.position + Vector2(self.size, self.size)
+        ]
 
     def getPlayerWorldBB(self):
         return [

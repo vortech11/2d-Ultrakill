@@ -1,4 +1,5 @@
 from pygame import Vector2
+from pygame import font
 
 class Camera:
     def __init__(self, screenSize):
@@ -6,6 +7,8 @@ class Camera:
         self.rotation: float = 0
         self.zoom: float = 0.5
         self.screenSize = screenSize
+        self.DEBUG_FONT = font.SysFont("Arial", 12)
+        
 
     def transformPoint(self, point:Vector2):
         transformed: Vector2 = point - self.position
@@ -28,3 +31,8 @@ class Camera:
                 center + Vector2(apothem, apothem), 
                 Vector2(center.x - apothem, center.y + apothem)
             ]
+        
+    def renderFPS(self, clock, screen):
+        fps = round(clock.get_fps(), 1)
+        text = self.DEBUG_FONT.render(f"{fps}", False, (0, 255, 0))
+        screen.blit(text, (10, 10))
