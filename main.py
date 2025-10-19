@@ -34,7 +34,7 @@ while running:
             if event.key == pygame.K_SPACE:
                 player.jumpping = True
             if event.key == pygame.K_LCTRL:
-                player.slam = True
+                player.slide = True
     
     dt = clock.tick(60) / 1000.0
     

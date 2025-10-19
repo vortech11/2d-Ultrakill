@@ -177,7 +177,7 @@ def displayMode():
 dt = 1
 
 player.noclip = True
-player.speed = 450
+player.airAccel = 450
 
 while running:
     dt = clock.tick(60) / 1000.0
