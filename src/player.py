@@ -3,7 +3,7 @@ from pygame import Vector2
 from pygame import draw
 import pygame
 
-from math import sqrt
+from math import sqrt, copysign
 
 def clamp(minimum, x, maximum):
     return max(minimum, min(x, maximum))
@@ -35,6 +35,8 @@ class Player:
         self.slide = False
         self.slam = False
         self.startSlam = 0
+        self.sliding = False
+        self.slideSpeed = 30
 
     def isPlayerColliding(self, world):
         rectColliding = world.isRectColliding(self.getPlayerRectBB())
@@ -94,23 +96,28 @@ class Player:
         if self.grounded > 0:
             self.maxSpeed = 15
         else:
-            self.maxSpeed = 20
-            self.airAccel = 50
+            self.maxSpeed = 15
+            self.airAccel = 80
             self.airResistance = 1
-        
-        
-        if self.slam > 0:
-            self.velosity = Vector2(0, self.slamSpeed)
                 
         if not (self.closeGrounded or self.grounded > 0):
-            if self.slide and self.slam == 0:
+            if self.slide and self.slam == 0 and not self.sliding:
                 self.slam = 10
                 self.startSlam = self.position.y
                 
-        elif self.closeGrounded:
-            ...
-        
-        if self.grounded > 0:
+        elif self.closeGrounded and self.grounded > 0:
+            if self.slide and not self.sliding:
+                self.sliding = True
+                
+        if not self.slide:
+            self.sliding = False
+            
+        if self.slam > 0:
+            self.velosity = Vector2(0, self.slamSpeed)
+        elif self.sliding:
+            self.velosity.x = copysign(self.slideSpeed, self.velosity.x)
+            
+        elif self.grounded > 0:
             if direction == Vector2(0, 0):
                 self.velosity.x -= self.velosity.x
             else:
