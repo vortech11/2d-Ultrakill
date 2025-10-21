@@ -32,7 +32,7 @@ class Player:
         self.size = 20
         
         self.currentState = self.State.NORMAL
-        self.Keys = {"K_LCTRL": False}
+        self.Keys = {"K_LCTRL": False, "K_LSHIFT": False}
         self.jumpping = False
         
         self.moveSubDiv: list[int] = [7, 4]
@@ -47,7 +47,10 @@ class Player:
         self.slamSpeed = 2500
         self.slideSpeed = 1500
         self.totalSlamCoyoteTime = 500
+        self.dashSpeed = 2500
+        self.startDashTime = 0.20
         
+        self.dashTime = 0
         self.slamCoyoteTime = 0
         self.startSlam = 0
         self.grounded = 0
@@ -114,6 +117,13 @@ class Player:
         
         self.updateGrounded(world)
         self.updateCloseGrounded(world)
+
+        if self.Keys["K_LSHIFT"]:
+            self.currentState = self.State.DASH
+            if not direction.x == 0:
+                self.velosity.x = copysign(self.velosity.x, direction.x)
+            self.Keys["K_LSHIFT"] = False
+            self.dashTime = self.startDashTime
                 
         if (not (self.closeGrounded or self.grounded > 0)) and self.Keys["K_LCTRL"]:
             if not self.currentState == self.State.SLAM:
@@ -129,6 +139,8 @@ class Player:
         if not self.Keys["K_LCTRL"]:
             if self.currentState == self.State.SLIDE:
                 self.currentState = self.State.NORMAL
+
+        self.velosity.y += self.gravity * dt
             
         match self.currentState:
             case self.State.SLAM:
@@ -138,6 +150,12 @@ class Player:
                     self.Keys["K_LCTRL"] = False
             case self.State.SLIDE:
                 self.velosity.x = copysign(self.slideSpeed, self.velosity.x)
+            case self.State.DASH:
+                self.velosity = Vector2(copysign(self.dashSpeed, self.velosity.x), 0)
+                self.dashTime = max(self.dashTime - dt, 0)
+                if self.dashTime == 0:
+                    self.currentState = self.State.NORMAL
+                    self.velosity.x = copysign(self.maxSpeed, self.velosity.x)
             case self.State.NORMAL:
                 if self.grounded > 0:
                     if direction == Vector2(0, 0):
@@ -155,12 +173,13 @@ class Player:
                         if abs(self.velosity.x) < self.maxSpeed or not same_sign(direction.x, self.velosity.x):
                             self.velosity.x += direction.x * self.airAccel * dt
         
-        self.velosity.y += self.gravity * dt
         
         if self.jumpping:
             if self.currentState == self.State.SLIDE:
                 self.currentState = self.State.NORMAL
                 self.Keys["K_LCTRL"] = False
+            if self.currentState == self.State.DASH:
+                self.currentState = self.State.NORMAL
             if self.slamCoyoteTime > 0:
                 if self.closeGrounded:
                     self.velosity.y = min(-2*sqrt(max(self.position.y - self.startSlam, 0) * self.gravity/2), self.slamJumpSpeed) 

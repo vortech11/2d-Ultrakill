@@ -35,6 +35,8 @@ while running:
                 player.jumpping = True
             if event.key == pygame.K_LCTRL:
                 player.Keys["K_LCTRL"] = True
+            if event.key == pygame.K_LSHIFT:
+                player.Keys["K_LSHIFT"] = True
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LCTRL:
                 player.Keys["K_LCTRL"] = False
