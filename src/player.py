@@ -36,7 +36,7 @@ class Player:
         self.jumpping = False
         
         self.moveSubDiv: list[int] = [7, 4]
-        self.stepup = 10
+        self.stepup = 1
         
         self.airAccel = 7500
         self.maxSpeed = 750
@@ -54,6 +54,7 @@ class Player:
         self.slamCoyoteTime = 0
         self.startSlam = 0
         self.grounded = 0
+        self.walled = False
         self.closeGrounded = False
 
     def isPlayerColliding(self, world):
@@ -76,6 +77,18 @@ class Player:
         else:
             self.closeGrounded = False
         self.position.y -= 100
+    
+    def updateWalled(self, world):
+        walled = False
+        self.position.y += 10
+        if any(self.isPlayerColliding(world)):
+            walled = True
+        self.position.y -= 10
+        self.position.y -= 10
+        if any(self.isPlayerColliding(world)):
+            walled = True
+        self.position.y += 10
+        self.walled = walled
         
     def updatePlayerPosition(self, world, dt):
         self.position.x += self.velosity.x * dt
@@ -89,8 +102,11 @@ class Player:
                 if x >= stepup - 1:
                     self.position.y += stepup
                 
-                    self.position.x -= self.velosity.x
+                    self.position.x -= self.velosity.x * dt
                     self.velosity.x = 0
+                    if self.currentState == self.State.SLIDE:
+                        self.currentState = self.State.NORMAL
+                        self.Keys["K_LCTRL"] = False
                     break
         elif self.isPlayerColliding(world)[0]:
             for x in range(self.moveSubDiv[0]):
@@ -98,6 +114,9 @@ class Player:
                 if not any(self.isPlayerColliding(world)):
                     break
             self.velosity.x = 0
+            if self.currentState == self.State.SLIDE:
+                self.currentState = self.State.NORMAL
+                self.Keys["K_LCTRL"] = False
         
         self.position.y += self.velosity.y * dt
 
@@ -117,6 +136,7 @@ class Player:
         
         self.updateGrounded(world)
         self.updateCloseGrounded(world)
+        self.updateWalled(world)
 
         if self.Keys["K_LSHIFT"]:
             self.currentState = self.State.DASH
