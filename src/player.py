@@ -5,6 +5,8 @@ import pygame
 
 from math import sqrt, copysign
 
+from enum import Enum
+
 def clamp(minimum, x, maximum):
     return max(minimum, min(x, maximum))
 
@@ -16,26 +18,33 @@ def same_sign(a, b):
     return False
 
 class Player:
+    class State(Enum):
+        NORMAL = 0
+        NOCLIP = 1
+        SLIDE = 2
+        DASH = 3
+        SLAM = 4
+        
     def __init__(self):
         self.velosity: Vector2 = Vector2(0, 0)
         self.position: Vector2 = Vector2(100, 100)
+        self.color = (240, 24, 24)
+        self.size = 20
+        self.moveSubDiv: list[int] = [7, 4]
         self.airAccel = 0
         self.maxSpeed = 0
         self.airResistance = 0
-        self.size = 20
-        self.color = (240, 24, 24)
-        self.noclip = False
         self.gravity = 1
+        self.Keys = {"K_LCTRL": False}
+        self.currentState = self.State.NORMAL
         self.jumpping = False
         self.jumpSpeed = -25
+        self.slamCoyoteTime = 0
         self.slamJumpSpeed = -30
         self.slamSpeed = 50
         self.grounded = 0
         self.closeGrounded = False
-        self.slide = False
-        self.slam = False
         self.startSlam = 0
-        self.sliding = False
         self.slideSpeed = 30
 
     def isPlayerColliding(self, world):
@@ -74,18 +83,24 @@ class Player:
                     self.velosity.x = 0
                     break
         elif self.isPlayerColliding(world)[0]:
-            self.position.x -= self.velosity.x
+            for x in range(self.moveSubDiv[0]):
+                self.position.x -= self.velosity.x / self.moveSubDiv[0]
+                if not any(self.isPlayerColliding(world)):
+                    break
             self.velosity.x = 0
         
         self.position.y += self.velosity.y
 
         if any(self.isPlayerColliding(world)):
-            self.slam = max(self.slam -1, 0)
-            self.position.y -= self.velosity.y
+            for x in range(self.moveSubDiv[1]):
+                self.position.y -= self.velosity.y / self.moveSubDiv[1]
+                if not any(self.isPlayerColliding(world)):
+                    break
+            self.slamCoyoteTime = max(self.slamCoyoteTime -1, 0)
             self.velosity.y = 0
             
     def movePlayerDirection(self, dt, direction: Vector2, camera, world):
-        if self.noclip:
+        if self.currentState == self.State.NOCLIP:
             self.position += direction * 1000 * dt
             camera.position += (self.position - camera.position)
             return
@@ -95,51 +110,63 @@ class Player:
         
         if self.grounded > 0:
             self.maxSpeed = 15
+            
         else:
             self.maxSpeed = 15
             self.airAccel = 80
             self.airResistance = 1
                 
-        if not (self.closeGrounded or self.grounded > 0):
-            if self.slide and self.slam == 0 and not self.sliding:
-                self.slam = 10
+        if (not (self.closeGrounded or self.grounded > 0)) and self.Keys["K_LCTRL"]:
+            if not self.currentState == self.State.SLAM:
+                self.Keys["K_LCTRL"] = False
+                self.currentState = self.State.SLAM
+                self.slamCoyoteTime = 10
                 self.startSlam = self.position.y
                 
-        elif self.closeGrounded and self.grounded > 0:
-            if self.slide and not self.sliding:
-                self.sliding = True
+        elif (self.closeGrounded and self.grounded > 0) and self.Keys["K_LCTRL"]:
+            if not self.currentState == self.State.SLIDE:
+                self.currentState = self.State.SLIDE
                 
-        if not self.slide:
-            self.sliding = False
+        if not self.Keys["K_LCTRL"]:
+            if self.currentState == self.State.SLIDE:
+                self.currentState = self.State.NORMAL
             
-        if self.slam > 0:
-            self.velosity = Vector2(0, self.slamSpeed)
-        elif self.sliding:
-            self.velosity.x = copysign(self.slideSpeed, self.velosity.x)
-            
-        elif self.grounded > 0:
-            if direction == Vector2(0, 0):
-                self.velosity.x -= self.velosity.x
-            else:
-                if abs(self.velosity.x) < self.maxSpeed:
-                    self.velosity.x += direction.x * (self.maxSpeed - abs(self.velosity.x))
-                elif not same_sign(direction.x, self.velosity.x):
-                    self.velosity.x = self.maxSpeed * direction.x
-        else:
-            if direction == Vector2(0, 0):
-                self.velosity.x -= self.velosity.x * self.airResistance * dt
-            else:
-                if abs(self.velosity.x) < self.maxSpeed or not same_sign(direction.x, self.velosity.x):
-                    self.velosity.x += direction.x * self.airAccel * dt
+        match self.currentState:
+            case self.State.SLAM:
+                self.velosity = Vector2(0, self.slamSpeed)
+                if self.grounded > 0:
+                    self.currentState = self.State.NORMAL
+                    self.Keys["K_LCTRL"] = False
+            case self.State.SLIDE:
+                self.velosity.x = copysign(self.slideSpeed, self.velosity.x)
+            case self.State.NORMAL:
+                if self.grounded > 0:
+                    if direction == Vector2(0, 0):
+                        self.velosity.x -= self.velosity.x
+                    else:
+                        self.velosity.x = self.maxSpeed * direction.x
+                        #if abs(self.velosity.x) < self.maxSpeed:
+                        #    self.velosity.x += direction.x * (self.maxSpeed - abs(self.velosity.x))
+                        #elif not same_sign(direction.x, self.velosity.x):
+                        #    self.velosity.x = self.maxSpeed * direction.x
+                else:
+                    if direction == Vector2(0, 0):
+                        self.velosity.x -= self.velosity.x * self.airResistance * dt
+                    else:
+                        if abs(self.velosity.x) < self.maxSpeed or not same_sign(direction.x, self.velosity.x):
+                            self.velosity.x += direction.x * self.airAccel * dt
         
         self.velosity.y += self.gravity
         
         if self.jumpping:
-            if self.slam > 0:
+            if self.currentState == self.State.SLIDE:
+                self.currentState = self.State.NORMAL
+                self.Keys["K_LCTRL"] = False
+            if self.slamCoyoteTime > 0:
                 if self.closeGrounded:
                     self.velosity.y = min(-2*sqrt(max(self.position.y - self.startSlam, 0) * self.gravity/2), self.slamJumpSpeed)
-                    self.slam = 0
-                    self.slide = False
+                    self.slamCoyoteTime = 0
+                    self.currentState = self.State.NORMAL
             elif self.grounded > 0:
                 self.velosity.y = self.jumpSpeed
                 self.grounded = 0

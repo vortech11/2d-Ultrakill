@@ -34,10 +34,10 @@ while running:
             if event.key == pygame.K_SPACE:
                 player.jumpping = True
             if event.key == pygame.K_LCTRL:
-                player.slide = True
+                player.Keys["K_LCTRL"] = True
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LCTRL:
-                player.slide = False
+                player.Keys["K_LCTRL"] = False
     
     dt = clock.tick(60) / 1000.0
     
