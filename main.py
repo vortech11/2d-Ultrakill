@@ -4,6 +4,7 @@ from pygame import Vector2
 from src.camera import Camera
 from src.geometry import Geometry
 from src.player import Player
+from src.ui import UiHandler
 
 screenSize = Vector2(800, 800)
 
@@ -21,6 +22,8 @@ camera = Camera(screenSize)
 player = Player()
 
 world = Geometry()
+
+uiHandler = UiHandler(screenSize)
 
 world.loadGeometryFile("level.json")
 
@@ -40,6 +43,8 @@ while running:
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LCTRL:
                 player.Keys["K_LCTRL"] = False
+            if event.key == pygame.K_LSHIFT:
+                player.Keys["K_LSHIFT"] = False
     
     dt = clock.tick(60) / 1000.0
     
@@ -65,6 +70,8 @@ while running:
     player.renderPlayer(screen, camera)
     
     camera.renderFPS(clock, screen)
+
+    uiHandler.renderUi(player, screen)
 
     pygame.display.update()
 

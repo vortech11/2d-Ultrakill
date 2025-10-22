@@ -59,7 +59,7 @@ class Player(src.enemies.Character):
         self.startDashTime = 0.18
         self.wallJumpX = 1500
         
-        self.staminaRegenSpeed = 0.7
+        self.staminaRegenSpeed = 20
         
         self.stamina = 100
         self.wallJumps = 3
@@ -211,7 +211,7 @@ class Player(src.enemies.Character):
                             self.velosity.x += direction.x * self.airAccel * dt
                             
         if not self.currentState == self.State.SLIDE:
-            self.stamina = min(self.stamina + self.staminaRegenSpeed * dt * 30, 100)
+            self.stamina = min(self.stamina + self.staminaRegenSpeed * dt, 100)
         
         
         if self.jumpping:
