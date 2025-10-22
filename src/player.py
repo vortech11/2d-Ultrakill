@@ -3,6 +3,8 @@ from pygame import Vector2
 from pygame import draw
 import pygame
 
+import src.enemies
+
 from math import sqrt, copysign
 
 from enum import Enum
@@ -17,7 +19,7 @@ def same_sign(a, b):
         return True
     return False
 
-class Player:
+class Player(src.enemies.Character):
     class State(Enum):
         NORMAL = 0
         NOCLIP = 1
@@ -26,10 +28,14 @@ class Player:
         SLAM = 4
         
     def __init__(self):
-        self.velosity: Vector2 = Vector2(0, 0)
-        self.position: Vector2 = Vector2(100, 100)
+        src.enemies.Character.__init__(
+            self, 
+            Vector2(100, 100), 
+            [Vector2(-20, 0), Vector2(20, 0), Vector2(20, 80), Vector2(-20, 80)], 
+            100,
+            3000
+        )
         self.color = (240, 24, 24)
-        self.size = 20
         
         self.currentState = self.State.NORMAL
         self.Keys = {"K_LCTRL": False, "K_LSHIFT": False}
@@ -41,7 +47,6 @@ class Player:
         self.airAccel = 7500
         self.maxSpeed = 750
         self.airResistance = 1
-        self.gravity = 3000
         self.jumpSpeed = -1200
         self.slamJumpSpeed = -1500
         self.slamSpeed = 2500
@@ -231,17 +236,12 @@ class Player:
         
     def getPlayerRectBB(self):
         return [
-            self.position - Vector2(self.size, self.size), 
-            self.position + Vector2(self.size, self.size)
+            self.position + self.hitbox[0],
+            self.position + self.hitbox[2]
         ]
 
     def getPlayerWorldBB(self):
-        return [
-            self.position - Vector2(self.size, self.size), 
-            Vector2(self.position.x + self.size, self.position.y - self.size), 
-            self.position + Vector2(self.size, self.size), 
-            Vector2(self.position.x - self.size, self.position.y + self.size)
-        ]
+        return [self.position + point for point in self.hitbox]
 
     def renderPlayer(self, screen, camera):
         draw.polygon(screen, self.color, [camera.transformPoint(point) for point in self.getPlayerWorldBB()])
