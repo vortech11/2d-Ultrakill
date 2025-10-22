@@ -28,10 +28,13 @@ class Player(src.enemies.Character):
         SLAM = 4
         
     def __init__(self):
+        self.normalHitbox = [Vector2(-20, 0), Vector2(20, 0), Vector2(20, 80), Vector2(-20, 80)]
+        self.slidingHitbox = [Vector2(-20, 40), Vector2(20, 40), Vector2(20, 80), Vector2(-20, 80)]
+        
         src.enemies.Character.__init__(
             self, 
             Vector2(100, 100), 
-            [Vector2(-20, 0), Vector2(20, 0), Vector2(20, 80), Vector2(-20, 80)], 
+            self.normalHitbox, 
             100,
             3000
         )
@@ -182,6 +185,7 @@ class Player(src.enemies.Character):
                     self.Keys["K_LCTRL"] = False
             case self.State.SLIDE:
                 self.velosity.x = copysign(self.slideSpeed, self.velosity.x)
+                self.hitbox = self.slidingHitbox
             case self.State.DASH:
                 self.velosity = Vector2(copysign(self.dashSpeed, self.velosity.x), 0)
                 self.dashTime = max(self.dashTime - dt, 0)
@@ -189,6 +193,7 @@ class Player(src.enemies.Character):
                     self.currentState = self.State.NORMAL
                     self.velosity.x = copysign(self.maxSpeed, self.velosity.x)
             case self.State.NORMAL:
+                self.hitbox = self.normalHitbox
                 if self.grounded > 0:
                     if direction == Vector2(0, 0):
                         self.velosity.x -= self.velosity.x
