@@ -48,7 +48,13 @@ class Player:
         self.slideSpeed = 1500
         self.totalSlamCoyoteTime = 500
         self.dashSpeed = 2500
-        self.startDashTime = 0.20
+        self.startDashTime = 0.18
+        self.wallJumpX = 1500
+        
+        self.staminaRegenSpeed = 0.7
+        
+        self.stamina = 100
+        self.wallJumps = 3
         
         self.dashTime = 0
         self.slamCoyoteTime = 0
@@ -66,6 +72,7 @@ class Player:
         self.position.y += 20
         if any(self.isPlayerColliding(world)):
             self.grounded = min(self.grounded + 1, 10)
+            self.wallJumps = 3
         else:
             self.grounded = max(self.grounded - 1, 0)
         self.position.y -= 20
@@ -79,16 +86,15 @@ class Player:
         self.position.y -= 100
     
     def updateWalled(self, world):
-        walled = False
-        self.position.y += 10
+        self.walled = 0
+        self.position.x += 10
         if any(self.isPlayerColliding(world)):
-            walled = True
-        self.position.y -= 10
-        self.position.y -= 10
+            self.walled = -1
+        self.position.x -= 10
+        self.position.x -= 10
         if any(self.isPlayerColliding(world)):
-            walled = True
-        self.position.y += 10
-        self.walled = walled
+            self.walled = 1
+        self.position.x += 10
         
     def updatePlayerPosition(self, world, dt):
         self.position.x += self.velosity.x * dt
@@ -103,7 +109,7 @@ class Player:
                     self.position.y += stepup
                 
                     self.position.x -= self.velosity.x * dt
-                    self.velosity.x = 0
+                    self.velosity.x = copysign(0.01, self.velosity.x)
                     if self.currentState == self.State.SLIDE:
                         self.currentState = self.State.NORMAL
                         self.Keys["K_LCTRL"] = False
@@ -113,7 +119,7 @@ class Player:
                 self.position.x -= self.velosity.x / self.moveSubDiv[0] * dt
                 if not any(self.isPlayerColliding(world)):
                     break
-            self.velosity.x = 0
+            self.velosity.x = copysign(0.01, self.velosity.x)
             if self.currentState == self.State.SLIDE:
                 self.currentState = self.State.NORMAL
                 self.Keys["K_LCTRL"] = False
@@ -138,15 +144,16 @@ class Player:
         self.updateCloseGrounded(world)
         self.updateWalled(world)
 
-        if self.Keys["K_LSHIFT"]:
+        if self.Keys["K_LSHIFT"] and self.stamina > 33:
             self.currentState = self.State.DASH
+            self.stamina -= 33
             if not direction.x == 0:
                 self.velosity.x = copysign(self.velosity.x, direction.x)
             self.Keys["K_LSHIFT"] = False
             self.dashTime = self.startDashTime
                 
         if (not (self.closeGrounded or self.grounded > 0)) and self.Keys["K_LCTRL"]:
-            if not self.currentState == self.State.SLAM:
+            if not (self.currentState == self.State.SLAM or self.currentState == self.State.SLIDE):
                 self.Keys["K_LCTRL"] = False
                 self.currentState = self.State.SLAM
                 self.slamCoyoteTime = self.totalSlamCoyoteTime * dt
@@ -192,6 +199,9 @@ class Player:
                     else:
                         if abs(self.velosity.x) < self.maxSpeed or not same_sign(direction.x, self.velosity.x):
                             self.velosity.x += direction.x * self.airAccel * dt
+                            
+        if not self.currentState == self.State.SLIDE:
+            self.stamina = min(self.stamina + self.staminaRegenSpeed * dt * 30, 100)
         
         
         if self.jumpping:
@@ -208,6 +218,11 @@ class Player:
             elif self.grounded > 0:
                 self.velosity.y = self.jumpSpeed
                 self.grounded = 0
+            elif not self.walled == 0:
+                if self.wallJumps > 0:
+                    self.velosity.y = self.jumpSpeed
+                    self.velosity.x = copysign(self.wallJumpX, self.walled)
+                    self.wallJumps -= 1
             self.jumpping = False
 
         self.updatePlayerPosition(world, dt)

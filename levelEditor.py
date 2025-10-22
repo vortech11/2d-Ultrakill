@@ -101,7 +101,10 @@ class Editor():
         mousePos = Vector2(pygame.mouse.get_pos())
         #mouseKeys = pygame.mouse.get_pressed()
         
-        player.noclip = not keys[pygame.K_LSHIFT]
+        if keys[pygame.K_LSHIFT]:
+            player.currentState = player.State.NORMAL
+        else:
+            player.currentState = player.State.NOCLIP
 
         direction: Vector2 = Vector2(0, 0)
         direction.x = keys[pygame.K_d] - keys[pygame.K_a]
@@ -176,7 +179,7 @@ def displayMode():
 
 dt = 1
 
-player.noclip = True
+player.currentState = player.State.NOCLIP
 player.airAccel = 450
 
 while running:
