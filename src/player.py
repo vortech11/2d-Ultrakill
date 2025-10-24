@@ -52,7 +52,7 @@ class Player(src.enemies.Character):
         self.airResistance = 1
         self.jumpSpeed = -1200
         self.slamJumpSpeed = -1500
-        self.slamSpeed = 2500
+        self.slamSpeed = 2750
         self.slideSpeed = 1500
         self.totalSlamCoyoteTime = 500
         self.dashSpeed = 2500
