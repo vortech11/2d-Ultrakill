@@ -3,7 +3,7 @@ from pygame import Vector2
 from pygame import draw
 import pygame
 
-import src.enemies
+from src.enemies import Character
 
 from math import sqrt, copysign
 
@@ -19,7 +19,7 @@ def same_sign(a, b):
         return True
     return False
 
-class Player(src.enemies.Character):
+class Player(Character):
     class State(Enum):
         NORMAL = 0
         NOCLIP = 1
@@ -27,12 +27,13 @@ class Player(src.enemies.Character):
         DASH = 3
         SLAM = 4
         
-    def __init__(self):
+    def __init__(self, gameEngine):
+        
         self.normalHitbox = [Vector2(-20, 0), Vector2(20, 0), Vector2(20, 80), Vector2(-20, 80)]
         self.slidingHitbox = [Vector2(-20, 40), Vector2(20, 40), Vector2(20, 80), Vector2(-20, 80)]
         
-        src.enemies.Character.__init__(
-            self, 
+        super().__init__(
+            gameEngine,
             Vector2(100, 100), 
             self.normalHitbox, 
             100,
@@ -72,8 +73,8 @@ class Player(src.enemies.Character):
         self.closeGrounded = False
 
     def isPlayerColliding(self, world):
-        rectColliding = world.isRectColliding(self.getPlayerRectBB())
-        polyColliding = world.isPolyColliding(self.getPlayerWorldBB())
+        rectColliding = world.isRectColliding(self.getRectBB())
+        polyColliding = world.isPolyColliding(self.getPolyBB())
         return [rectColliding, polyColliding]
     
     def updateGrounded(self, world):
@@ -239,14 +240,3 @@ class Player(src.enemies.Character):
 
         camera.position += (self.position - camera.position) * 0.2
         
-    def getPlayerRectBB(self):
-        return [
-            self.position + self.hitbox[0],
-            self.position + self.hitbox[2]
-        ]
-
-    def getPlayerWorldBB(self):
-        return [self.position + point for point in self.hitbox]
-
-    def renderPlayer(self, screen, camera):
-        draw.polygon(screen, self.color, [camera.transformPoint(point) for point in self.getPlayerWorldBB()])

@@ -8,9 +8,9 @@ import pygame
 
 
 class UiHandler:
-    def __init__(self, screenSize: Vector2):
+    def __init__(self, gameEngine):
+        self.gameEngine = gameEngine
         self.displayFont = pygame.font.SysFont("Arial", 20)
-        self.screenSize = screenSize
 
     def getBarRect(self, value, total, position: Vector2, endPosition: Vector2):
         return pygame.Rect(position.x, position.y, (endPosition.x) * value / total, endPosition.y)
@@ -18,13 +18,13 @@ class UiHandler:
     def renderBar(self, screen, color, value, total, position: Vector2, relativeEnd: Vector2):
         pygame.draw.rect(screen, color, self.getBarRect(value, total, position, relativeEnd))
         
-    def renderUi(self, player, screen):
+    def renderUi(self, player, screen, screenSize:Vector2):
         
         #staminaText = self.displayFont.render(f"{player.stamina}", False, (58, 224, 219))
 
         #screen.blit(staminaText, (100, 100))
 
-        playerWigitStart: Vector2 = Vector2(50, self.screenSize.y - 150)
+        playerWigitStart: Vector2 = Vector2(50, screenSize.y - 150)
         playerWigitEnd: Vector2 = Vector2(200, 100)
 
         pygame.draw.rect(screen, (50, 50, 50), pygame.Rect(playerWigitStart.x, playerWigitStart.y, playerWigitEnd.x, playerWigitEnd.y))

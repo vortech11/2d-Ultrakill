@@ -23,9 +23,9 @@ running = True
 
 camera = Camera(screenSize)
 
-player = Player()
+player = Player(None)
 
-world = Geometry()
+world = Geometry(None)
 
 world.loadGeometryFile("level.json")
 
@@ -191,7 +191,7 @@ while running:
 
     world.render(camera, screen)
     
-    player.renderPlayer(screen, camera)
+    player.renderPlayerHitbox()
     
     editor.userInput()
     

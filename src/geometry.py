@@ -9,7 +9,8 @@ from copy import deepcopy
 #from camera import Camera
 
 class Geometry:
-    def __init__(self):
+    def __init__(self, gameEngine):
+        self.gameEngine = gameEngine
         self.geometry = {}
         self.currentFilePath: Path
         
