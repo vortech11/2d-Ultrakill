@@ -3,6 +3,7 @@
 
 from pygame import Vector2
 from pygame import draw
+from pygame import transform
 
 class Character:
     def __init__(self, gameEngine, startPos:Vector2, hitbox: list[Vector2], totalHealth, gravity=3000):
@@ -16,7 +17,7 @@ class Character:
         
         self.gravity = gravity
         
-        self.image = None
+        self.imageDir = "cat"
         
     def getPolyBB(self):
         return [self.position + point for point in self.hitbox]
@@ -31,7 +32,8 @@ class Character:
         draw.polygon(self.gameEngine.screen, color, [self.gameEngine.camera.transformPoint(point) for point in self.getPolyBB()])
         
     def renderSprite(self):
-        ...
+        imageData = self.gameEngine.images[self.imageDir]["Goofball.png"]
+        self.gameEngine.screen.blit(transform.scale_by(imageData["image"], imageData["scale"] * self.gameEngine.camera.zoom), self.gameEngine.camera.transformPoint(self.position + imageData["center"]))
         
 class Filth(Character):
     def __init__(self, gameEngine, startPos: Vector2):

@@ -3,31 +3,12 @@ from pygame import Vector2
 
 from enum import Enum
 
-from src.camera import Camera
-from src.geometry import Geometry
-from src.player import Player
+from src.engine import GameEngine
 
 screenSize = Vector2(800, 800)
-
-pygame.init()
 pygame.font.init()
 
 DEBUG_FONT = pygame.font.SysFont("Arial", 20)
-
-screen = pygame.display.set_mode(screenSize)
-
-pygame.display.set_caption("2D Ultrakill")
-clock = pygame.time.Clock()
-
-running = True
-
-camera = Camera(screenSize)
-
-player = Player(None)
-
-world = Geometry(None)
-
-world.loadGeometryFile("level.json")
 
 class modes(Enum):
     normal = 0
@@ -44,7 +25,8 @@ class colors(Enum):
 colorsList = [color.value for color in colors]
 
 class Editor():
-    def __init__(self):
+    def __init__(self, gameEngine):
+        self.engine = gameEngine
         self.mode = modes.normal
         self.pointData = []
         self.displayText = "0"
@@ -77,10 +59,10 @@ class Editor():
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                self.engine.running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    world.saveGeometryFile()
+                    self.engine.world.saveGeometryFile()
                     print("File Writen To!")
                 if event.key == pygame.K_r:
                     self.mode = modes.rect
@@ -102,31 +84,38 @@ class Editor():
         #mouseKeys = pygame.mouse.get_pressed()
         
         if keys[pygame.K_LSHIFT]:
-            player.currentState = player.State.NORMAL
+            self.engine.player.currentState = self.engine.player.State.NORMAL
         else:
-            player.currentState = player.State.NOCLIP
+            self.engine.player.currentState = self.engine.player.State.NOCLIP
 
         direction: Vector2 = Vector2(0, 0)
         direction.x = keys[pygame.K_d] - keys[pygame.K_a]
         direction.y = keys[pygame.K_s] - keys[pygame.K_w]
 
-        camera.zoom += (keys[pygame.K_UP] - keys[pygame.K_DOWN]) * 2 * dt * camera.zoom
+        self.engine.camera.zoom += (keys[pygame.K_UP] - keys[pygame.K_DOWN]) * 2 * dt * self.engine.camera.zoom
 
-        if camera.zoom <= 0:
-            camera.zoom = 0
+        if self.engine.camera.zoom <= 0:
+            self.engine.camera.zoom = 0
 
         match self.mode:
             case modes.rect:
                 self.displayText = f"{len(self.pointData)}"
                 if mouseKeys[1]:
-                    self.pointData.append(self.roundVector(camera.unTransformPoint(mousePos)))
+                    self.pointData.append(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
                 if len(self.pointData) > 0:
-                    pygame.draw.polygon(screen, self.drawColor, world.generateRectPolyPoints([camera.transformPoint(self.pointData[0]), camera.transformPoint(self.roundVector(camera.unTransformPoint(mousePos)))]))
+                    pygame.draw.polygon(
+                        self.engine.screen, 
+                        self.drawColor, 
+                        self.engine.world.generateRectPolyPoints([
+                            self.engine.camera.transformPoint(self.pointData[0]),
+                            self.engine.camera.transformPoint(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
+                            ])
+                    )
                 if len(self.pointData) == 2:
                     self.pointData = self.fixRectWrapping(self.pointData)
-                    world.geometry["rect"].append({
+                    self.engine.world.geometry["rect"].append({
                         "points": self.pointData,
-                        "renderPoints": world.generateRectPolyPoints(self.pointData),
+                        "renderPoints": self.engine.world.generateRectPolyPoints(self.pointData),
                         "color": [self.drawColor[0], self.drawColor[1], self.drawColor[2]]
                     })
                     self.pointData = []
@@ -134,14 +123,30 @@ class Editor():
             case modes.triangle:
                 self.displayText = f"{len(self.pointData)}"
                 if mouseKeys[1]:
-                    self.pointData.append(self.roundVector(camera.unTransformPoint(mousePos)))
+                    self.pointData.append(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
                 if len(self.pointData) == 1:
-                    pygame.draw.polygon(screen, self.drawColor, [camera.transformPoint(self.pointData[0]), camera.transformPoint(self.pointData[0] + Vector2(10, -10)), camera.transformPoint(self.roundVector(camera.unTransformPoint(mousePos)))])
+                    pygame.draw.polygon(
+                        self.engine.screen, 
+                        self.drawColor, 
+                        [
+                            self.engine.camera.transformPoint(self.pointData[0]), 
+                            self.engine.camera.transformPoint(self.pointData[0] + Vector2(10, -10)), 
+                            self.engine.camera.transformPoint(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
+                        ]
+                    )
                 if len(self.pointData) == 2:
-                    pygame.draw.polygon(screen, self.drawColor, [camera.transformPoint(self.pointData[0]), camera.transformPoint(self.pointData[1]), camera.transformPoint(self.roundVector(camera.unTransformPoint(mousePos)))])
+                    pygame.draw.polygon(
+                        self.engine.screen, 
+                        self.drawColor, 
+                        [
+                            self.engine.camera.transformPoint(self.pointData[0]), 
+                            self.engine.camera.transformPoint(self.pointData[1]),
+                            self.engine.camera.transformPoint(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
+                        ]
+                    )
                 if len(self.pointData) == 3:
                     self.pointData = self.fixTriWrapping(self.pointData)
-                    world.geometry["tri"].append({
+                    self.engine.world.geometry["tri"].append({
                         "points": self.pointData,
                         "color": [self.drawColor[0], self.drawColor[1], self.drawColor[2]]
                     })
@@ -149,11 +154,11 @@ class Editor():
                     self.mode = modes.normal
             case modes.delete:
                 if mouseKeys[1]:
-                    toBeDel = world.isPointColliding(camera.unTransformPoint(mousePos))
+                    toBeDel = self.engine.world.isPointColliding(self.engine.camera.unTransformPoint(mousePos))
                     if len(toBeDel["rect"]) > 0:
-                        del world.geometry["rect"][toBeDel["rect"][-1]]
+                        del self.engine.world.geometry["rect"][toBeDel["rect"][-1]]
                     if len(toBeDel["tri"]) > 0:
-                        del world.geometry["tri"][toBeDel["tri"][-1]]
+                        del self.engine.world.geometry["tri"][toBeDel["tri"][-1]]
             case modes.color:
                 self.displayText = f"{colors(self.drawColor).name}"
                 if keys[pygame.K_1]:
@@ -167,34 +172,35 @@ class Editor():
                 self.displayText = ""
                 
 
-        player.movePlayerDirection(dt, direction, camera, world)
+        self.engine.player.movePlayerDirection(dt, direction, self.engine.camera, self.engine.world)
+        
+    def displayMode(self):
+        text_surface = DEBUG_FONT.render(f"{modes(editor.mode).name} {editor.displayText}", True, (255, 255, 255))
+        self.engine.screen.blit(text_surface, (10, 10))
 
-
-    
-editor = Editor()
-
-def displayMode():
-    text_surface = DEBUG_FONT.render(f"{modes(editor.mode).name} {editor.displayText}", True, (255, 255, 255))
-    screen.blit(text_surface, (10, 10))
+engine = GameEngine("2D Ultrakill Level Editor", screenSize)
+editor = Editor(engine)
 
 dt = 1
 
-player.currentState = player.State.NOCLIP
-player.airAccel = 450
+engine.player.currentState = engine.player.State.NOCLIP
+engine.player.airAccel = 450
 
-while running:
-    dt = clock.tick(60) / 1000.0
-    
-    screen.fill((0, 0, 0))
-    
-    displayMode()
-
-    world.render(camera, screen)
-    
-    player.renderPlayerHitbox()
+while engine.running:
+    dt = engine.clock.tick(60) / 1000.0
     
     editor.userInput()
-    
+
+    engine.screen.fill((0, 0, 0))
+
+    engine.world.render(engine.camera, engine.screen)
+
+    engine.player.renderSprite()
+
+    #engine.camera.renderFPS(engine.clock, engine.screen)
+
+    editor.displayMode()
+
     pygame.display.update()
 
-pygame.quit()
+engine.shutdown()

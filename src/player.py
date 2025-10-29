@@ -59,6 +59,7 @@ class Player(Character):
         self.dashSpeed = 2500
         self.startDashTime = 0.18
         self.wallJumpX = 1500
+        self.wallSlideMult = 0.90
         
         self.staminaRegenSpeed = 20
         
@@ -119,6 +120,7 @@ class Player(Character):
                 
                     self.position.x -= self.velosity.x * dt
                     self.velosity.x = copysign(0.01, self.velosity.x)
+                    self.velosity.y *= self.wallSlideMult
                     if self.currentState == self.State.SLIDE:
                         self.currentState = self.State.NORMAL
                         self.Keys["K_LCTRL"] = False
@@ -129,6 +131,7 @@ class Player(Character):
                 if not any(self.isPlayerColliding(world)):
                     break
             self.velosity.x = copysign(0.01, self.velosity.x)
+            self.velosity.y *= self.wallSlideMult
             if self.currentState == self.State.SLIDE:
                 self.currentState = self.State.NORMAL
                 self.Keys["K_LCTRL"] = False
