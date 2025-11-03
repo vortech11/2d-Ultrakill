@@ -67,7 +67,9 @@ class Geometry:
 
     def renderTriggers(self, camera, screen):
         for rect in self.geometry["triggers"]:
-            draw.rect(screen, (235, 199, 19), pygame.Rect(rect["points"][0], rect["points"][1], rect["points"][2], rect["points"][3]))
+            points = [Vector2(rect["points"][0], rect["points"][1]), Vector2(rect["points"][2], rect["points"][3])]
+            points = [camera.transformPoint(point) for point in points]
+            draw.rect(screen, (235, 199, 19), pygame.Rect(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y))
 
             
     def render(self, camera, screen):
