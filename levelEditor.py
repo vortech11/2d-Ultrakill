@@ -189,11 +189,11 @@ engine.player.airAccel = 450
 while engine.running:
     dt = engine.clock.tick(60) / 1000.0
     
-    editor.userInput()
-
     engine.screen.fill((0, 0, 0))
 
     engine.world.render(engine.camera, engine.screen)
+
+    editor.userInput()
 
     engine.player.renderSprite()
 
