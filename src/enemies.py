@@ -11,6 +11,7 @@ class Character:
         self.hitbox: list[Vector2] = hitbox
         self.position: Vector2 = startPos
         self.velosity: Vector2 = Vector2(0, 0)
+        self.facing = 1
         
         self.totalhealth = totalHealth
         self.health = self.totalhealth
@@ -33,7 +34,7 @@ class Character:
         
     def renderSprite(self):
         imageData = self.gameEngine.images[self.imageDir]["Goofball.png"]
-        self.gameEngine.screen.blit(transform.scale_by(imageData["image"], imageData["scale"] * self.gameEngine.camera.zoom), self.gameEngine.camera.transformPoint(self.position + imageData["center"]))
+        self.gameEngine.screen.blit(transform.flip(transform.scale_by(imageData["image"], imageData["scale"] * self.gameEngine.camera.zoom), int(self.facing), 0), self.gameEngine.camera.transformPoint(self.position + imageData["center"]))
         
 class Filth(Character):
     def __init__(self, gameEngine, startPos: Vector2):

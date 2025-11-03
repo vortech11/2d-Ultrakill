@@ -2,6 +2,7 @@ from src.camera import Camera
 from src.geometry import Geometry
 from src.player import Player
 from src.ui import UiHandler
+import src.enemies
 
 import pygame
 from pygame import Vector2
@@ -35,13 +36,20 @@ class GameEngine:
         self.world = Geometry(self)
         self.player = Player(self)
         self.uiHandler = UiHandler(self)
+
+        self.enemies = [src.enemies.Filth(self, Vector2(400, 100))]
         
         self.images = self.loadImages()
         
         self.world.loadGeometryFile("level.json")
-        
-    def runMainLoop(self):
-        ...
+
+    def tickWorld(self):
+        for enemy in self.enemies:
+            enemy.move()
+
+    def renderEnemies(self):
+        for enemy in self.enemies:
+            enemy.renderSprite()
             
     def shutdown(self):
         pygame.quit()

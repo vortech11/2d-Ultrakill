@@ -43,6 +43,8 @@ while engine.running:
 
     engine.world.render(engine.camera, engine.screen)
 
+    engine.renderEnemies()
+
     engine.player.renderSprite()
 
     engine.camera.renderFPS(engine.clock, engine.screen)

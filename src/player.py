@@ -180,6 +180,8 @@ class Player(Character):
                 self.currentState = self.State.NORMAL
 
         self.velosity.y += self.gravity * dt
+
+        self.facing = clamp(0, direction.x, 1)
             
         match self.currentState:
             case self.State.SLAM:
@@ -190,12 +192,13 @@ class Player(Character):
             case self.State.SLIDE:
                 self.velosity.x = copysign(self.slideSpeed, self.velosity.x)
                 self.hitbox = self.slidingHitbox
+                self.facing = copysign(1, self.velosity.x)
             case self.State.DASH:
                 self.velosity = Vector2(copysign(self.dashSpeed, self.velosity.x), 0)
                 self.dashTime = max(self.dashTime - dt, 0)
                 if self.dashTime == 0:
                     self.currentState = self.State.NORMAL
-                    self.velosity.x = copysign(self.maxSpeed, self.velosity.x)
+                    self.velosity.x = clamp(0, copysign(self.maxSpeed, self.velosity.x), 1)
             case self.State.NORMAL:
                 self.hitbox = self.normalHitbox
                 if self.grounded > 0:
