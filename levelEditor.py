@@ -193,6 +193,8 @@ while engine.running:
 
     engine.world.render(engine.camera, engine.screen)
 
+    engine.world.renderTriggers(engine.camera, engine.screen)
+
     editor.userInput()
 
     engine.player.renderSprite()

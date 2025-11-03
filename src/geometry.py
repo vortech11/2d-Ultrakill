@@ -64,6 +64,11 @@ class Geometry:
     def renderPoly(self, camera, screen):
         for poly in self.geometry["tri"]:
             draw.polygon(screen, poly["color"], [camera.transformPoint(point) for point in poly["points"]])
+
+    def renderTriggers(self, camera, screen):
+        for rect in self.geometry["triggers"]:
+            draw.rect(screen, (235, 199, 19), pygame.Rect(rect["points"][0], rect["points"][1], rect["points"][2], rect["points"][3]))
+
             
     def render(self, camera, screen):
         self.renderRects(camera, screen)
@@ -128,6 +133,9 @@ class Geometry:
     def isRectColliding(self, inputRect):
         #return any([pygame.Rect.colliderect(self.generateRect(inputRect), self.generateRect(rect["points"])) for rect in self.geometry["rect"]])              WTF is wrong with this???????
         return any([self.isRectRectColliding(inputRect, rect["points"]) for rect in self.geometry["rect"]])
+
+    def isTriggerColliding(self, inputRect: list[Vector2]):
+        return [trigger for trigger in self.geometry["triggers"] if self.isRectRectColliding(inputRect, trigger["points"])]
 
     def isColliding(self, point: Vector2):
         return False
