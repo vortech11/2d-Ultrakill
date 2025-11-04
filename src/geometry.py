@@ -40,6 +40,11 @@ class Geometry:
         for index, poly in enumerate(self.geometry["tri"]):
             points = [Vector2(poly["points"][index], poly["points"][index + 1]) for index in range(0, len(poly["points"]), 2)]
             self.geometry["tri"][index]["points"] = points
+
+    def convertTriggerData(self):
+        for index, rect in enumerate(self.geometry["triggers"]):
+            points = self.generateRectVecorPoints(rect["points"])
+            self.geometry["triggers"][index]["points"] = points
             
     def saveGeometryFile(self):
         outGeometry = deepcopy(self.geometry)
@@ -48,6 +53,10 @@ class Geometry:
             points = [rect["points"][0].x, rect["points"][0].y, rect["points"][1].x, rect["points"][1].y]
             outGeometry["rect"][index]["points"] = points
             del outGeometry["rect"][index]["renderPoints"]
+
+        for index, rect in enumerate(outGeometry["triggers"]):
+            points = [rect["points"][0].x, rect["points"][0].y, rect["points"][1].x, rect["points"][1].y]
+            outGeometry["triggers"][index]["points"] = points
             
         for index, poly in enumerate(outGeometry["tri"]):
             points = []
@@ -67,8 +76,7 @@ class Geometry:
 
     def renderTriggers(self, camera, screen):
         for rect in self.geometry["triggers"]:
-            points = [Vector2(rect["points"][0], rect["points"][1]), Vector2(rect["points"][2], rect["points"][3])]
-            points = [camera.transformPoint(point) for point in points]
+            points = [camera.transformPoint(point) for point in rect["points"]]
             draw.rect(screen, (235, 199, 19), pygame.Rect(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y))
 
             
@@ -100,13 +108,16 @@ class Geometry:
         return A == A1 + A2 + A3
     
     def isPointColliding(self, point: Vector2):
-        data = {"rect": [], "tri": []}
+        data = {"rect": [], "tri": [], "triggers": []}
         for index, item in enumerate(self.geometry["rect"]):
             if self.isPointRectColliding(point, item["points"]):
                 data["rect"].append(index)
         for index, item in enumerate(self.geometry["tri"]):
             if self.isPointTriColliding(point, item["points"]):
                 data["tri"].append(index)
+        for index, item in enumerate(self.geometry["triggers"]):
+            if self.isPointRectColliding(point, item["points"]):
+                data["triggers"].append(index)
         return data
     
     def isLineLineColliding(self, p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2):

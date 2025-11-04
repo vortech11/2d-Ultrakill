@@ -16,6 +16,7 @@ class modes(Enum):
     triangle = 2
     delete = 3
     color = 4
+    trigger = 5
     
 class colors(Enum):
     darkGrey = (50, 50, 50)
@@ -73,6 +74,8 @@ class Editor():
                     self.mode = modes.delete
                 if event.key == pygame.K_q:
                     self.mode = modes.color
+                if event.key == pygame.K_f:
+                    self.mode = modes.trigger
                 if event.key == pygame.K_ESCAPE:
                     self.mode = modes.normal
                     self.pointData = []
@@ -152,6 +155,28 @@ class Editor():
                     })
                     self.pointData = []
                     self.mode = modes.normal
+            case modes.trigger:
+                self.displayText = f"{len(self.pointData)}"
+                if mouseKeys[1]:
+                    self.pointData.append(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
+                if len(self.pointData) > 0:
+                    pygame.draw.polygon(
+                        self.engine.screen, 
+                        (235, 199, 19), 
+                        self.engine.world.generateRectPolyPoints([
+                            self.engine.camera.transformPoint(self.pointData[0]),
+                            self.engine.camera.transformPoint(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
+                            ])
+                    )
+                if len(self.pointData) == 2:
+                    self.pointData = self.fixRectWrapping(self.pointData)
+                    self.engine.world.geometry["triggers"].append({
+                        "points": self.pointData,
+                        "func": "levelload",
+                        "perameters": []
+                    })
+                    self.pointData = []
+                    self.mode = modes.normal
             case modes.delete:
                 if mouseKeys[1]:
                     toBeDel = self.engine.world.isPointColliding(self.engine.camera.unTransformPoint(mousePos))
@@ -159,6 +184,8 @@ class Editor():
                         del self.engine.world.geometry["rect"][toBeDel["rect"][-1]]
                     if len(toBeDel["tri"]) > 0:
                         del self.engine.world.geometry["tri"][toBeDel["tri"][-1]]
+                    elif len(toBeDel["triggers"]) > 0:
+                        del self.engine.world.geometry["triggers"][toBeDel["triggers"][-1]]
             case modes.color:
                 self.displayText = f"{colors(self.drawColor).name}"
                 if keys[pygame.K_1]:
@@ -179,6 +206,7 @@ class Editor():
         self.engine.screen.blit(text_surface, (10, 10))
 
 engine = GameEngine("2D Ultrakill Level Editor", screenSize)
+engine.world.convertTriggerData()
 editor = Editor(engine)
 
 dt = 1

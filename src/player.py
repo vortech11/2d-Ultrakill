@@ -242,6 +242,8 @@ class Player(Character):
                     self.wallJumps -= 1
             self.jumpping = False
 
+        collidingTriggers = world.isTriggerColliding(self.getRectBB())
+
         self.updatePlayerPosition(world, dt)
 
         camera.position += (self.position - camera.position) * 0.2

@@ -4,6 +4,7 @@ from pygame import Vector2
 import pygame
 
 engine = GameEngine()
+engine.world.convertTriggerData()
 
 while engine.running:
     for event in pygame.event.get():
