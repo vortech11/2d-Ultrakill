@@ -38,7 +38,8 @@ while engine.running:
     if engine.camera.zoom <= 0:
         engine.camera.zoom = 0
 
-    engine.player.movePlayerDirection(dt, direction, engine.camera, engine.world)
+    if not engine.levelWin:
+        engine.player.movePlayerDirection(dt, direction, engine.camera, engine.world)
 
     engine.screen.fill((0, 0, 0))
 

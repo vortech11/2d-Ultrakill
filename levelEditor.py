@@ -22,6 +22,9 @@ class colors(Enum):
     darkGrey = (50, 50, 50)
     lightGrey = (100, 100, 100)
     green = (31, 158, 27)
+    red = (255, 0, 0)
+    yellow = (255, 194, 13)
+    lightGreen = (0, 255, 0)
 
 colorsList = [color.value for color in colors]
 
@@ -194,6 +197,12 @@ class Editor():
                     self.drawColor = pygame.Color(colorsList[1])
                 if keys[pygame.K_3]:
                     self.drawColor = pygame.Color(colorsList[2])
+                if keys[pygame.K_4]:
+                    self.drawColor = pygame.Color(colorsList[3])
+                if keys[pygame.K_5]:
+                    self.drawColor = pygame.Color(colorsList[4])
+                if keys[pygame.K_6]:
+                    self.drawColor = pygame.Color(colorsList[5])
                     
             case modes.normal:
                 self.displayText = ""

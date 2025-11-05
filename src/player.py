@@ -39,7 +39,8 @@ class Player(Character):
             100,
             3000
         )
-        self.color = (240, 24, 24)
+
+        self.collectables = [False, False]
         
         self.currentState = self.State.NORMAL
         self.Keys = {"K_LCTRL": False, "K_LSHIFT": False}
@@ -145,6 +146,18 @@ class Player(Character):
                     break
             self.slamCoyoteTime = max(self.slamCoyoteTime -1, 0)
             self.velosity.y = 0
+
+    def handleTriggers(self, world):
+        collidingTriggers = world.isTriggerColliding(self.getRectBB())
+        if any(collidingTriggers):
+            for trigger in collidingTriggers:
+                match trigger["func"]:
+                    case "hurt":
+                        self.health -= trigger["perameters"][0]
+                    case "levelEnd":
+                        self.gameEngine.levelWin = True
+                    case "collectable":
+                        self.collectables[trigger["perameters"][0]] = True
             
     def movePlayerDirection(self, dt, direction: Vector2, camera, world):
         if self.currentState == self.State.NOCLIP:
@@ -242,7 +255,7 @@ class Player(Character):
                     self.wallJumps -= 1
             self.jumpping = False
 
-        collidingTriggers = world.isTriggerColliding(self.getRectBB())
+        self.handleTriggers(world)
 
         self.updatePlayerPosition(world, dt)
 

@@ -32,6 +32,8 @@ class GameEngine:
         self.clock = pygame.time.Clock()
         self.running = True
         
+        self.levelWin = False
+        
         self.camera = Camera(self.screenSize)
         self.world = Geometry(self)
         self.player = Player(self)
