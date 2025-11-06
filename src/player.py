@@ -174,7 +174,8 @@ class Player(Character):
                                 self.powerupSpeed = trigger["perameters"][1]
                                 
     def handleDamage(self):
-        self.health -= self.gameEngine.world.calcContactDamage(self.getRectBB())
+        if not self.currentState == self.State.DASH:
+            self.health -= self.gameEngine.world.calcContactDamage(self.getRectBB())
         
         if self.health <= 0:
             self.restartLevel()
