@@ -46,7 +46,6 @@ class Player(Character):
         self.Keys = {"K_LCTRL": False, "K_LSHIFT": False}
         self.jumpping = False
         
-        self.moveSubDiv: list[int] = [7, 4]
         self.stepup = 1
         
         self.airAccel = 7500
@@ -67,6 +66,7 @@ class Player(Character):
         self.stamina = 100
         self.wallJumps = 3
         
+        self.powerupSpeed = 0
         self.dashTime = 0
         self.slamCoyoteTime = 0
         self.startSlam = 0
@@ -74,14 +74,11 @@ class Player(Character):
         self.walled = False
         self.closeGrounded = False
 
-    def isPlayerColliding(self, world):
-        rectColliding = world.isRectColliding(self.getRectBB())
-        polyColliding = world.isPolyColliding(self.getPolyBB())
-        return [rectColliding, polyColliding]
+    
     
     def updateGrounded(self, world):
         self.position.y += 20
-        if any(self.isPlayerColliding(world)):
+        if any(self.isAABBColliding(world)):
             self.grounded = min(self.grounded + 1, 10)
             self.wallJumps = 3
         else:
@@ -90,7 +87,7 @@ class Player(Character):
         
     def updateCloseGrounded(self, world):
         self.position.y += 100
-        if any(self.isPlayerColliding(world)):
+        if any(self.isAABBColliding(world)):
             self.closeGrounded = True
         else:
             self.closeGrounded = False
@@ -99,22 +96,22 @@ class Player(Character):
     def updateWalled(self, world):
         self.walled = 0
         self.position.x += 10
-        if any(self.isPlayerColliding(world)):
+        if any(self.isAABBColliding(world)):
             self.walled = -1
         self.position.x -= 10
         self.position.x -= 10
-        if any(self.isPlayerColliding(world)):
+        if any(self.isAABBColliding(world)):
             self.walled = 1
         self.position.x += 10
         
     def updatePlayerPosition(self, world, dt):
         self.position.x += self.velosity.x * dt
-        if self.isPlayerColliding(world)[1]:
+        if self.isAABBColliding(world)[1]:
             stepup = int(abs(self.stepup * self.velosity.x * dt) + 1)
             #print(stepup)
             for x in range(stepup):
                 self.position.y -= 1
-                if not any(self.isPlayerColliding(world)):
+                if not any(self.isAABBColliding(world)):
                     break
                 if x >= stepup - 1:
                     self.position.y += stepup
@@ -126,10 +123,10 @@ class Player(Character):
                         self.currentState = self.State.NORMAL
                         self.Keys["K_LCTRL"] = False
                     break
-        elif self.isPlayerColliding(world)[0]:
+        elif self.isAABBColliding(world)[0]:
             for x in range(self.moveSubDiv[0]):
                 self.position.x -= self.velosity.x / self.moveSubDiv[0] * dt
-                if not any(self.isPlayerColliding(world)):
+                if not any(self.isAABBColliding(world)):
                     break
             self.velosity.x = copysign(0.01, self.velosity.x)
             self.velosity.y *= self.wallSlideMult
@@ -139,10 +136,10 @@ class Player(Character):
         
         self.position.y += self.velosity.y * dt
 
-        if any(self.isPlayerColliding(world)):
+        if any(self.isAABBColliding(world)):
             for x in range(self.moveSubDiv[1]):
                 self.position.y -= self.velosity.y / self.moveSubDiv[1] * dt
-                if not any(self.isPlayerColliding(world)):
+                if not any(self.isAABBColliding(world)):
                     break
             self.slamCoyoteTime = max(self.slamCoyoteTime -1, 0)
             self.velosity.y = 0
@@ -155,9 +152,17 @@ class Player(Character):
                     case "hurt":
                         self.health -= trigger["perameters"][0]
                     case "levelEnd":
-                        self.gameEngine.levelWin = True
+                        if any(self.collectables):
+                            self.gameEngine.levelWin = True
                     case "collectable":
                         self.collectables[trigger["perameters"][0]] = True
+                    case "powerup":
+                        match trigger["perameters"][0]:
+                            case "speed":
+                                self.powerupSpeed = trigger["perameters"][1]
+                                
+    def handleDamage(self):
+        self.health -= self.gameEngine.world.calcContactDamage(self.getRectBB())
             
     def movePlayerDirection(self, dt, direction: Vector2, camera, world):
         if self.currentState == self.State.NOCLIP:
@@ -218,7 +223,7 @@ class Player(Character):
                     if direction == Vector2(0, 0):
                         self.velosity.x -= self.velosity.x
                     else:
-                        self.velosity.x = self.maxSpeed * direction.x
+                        self.velosity.x = (self.maxSpeed + self.powerupSpeed) * direction.x
                         #if abs(self.velosity.x) < self.maxSpeed:
                         #    self.velosity.x += direction.x * (self.maxSpeed - abs(self.velosity.x))
                         #elif not same_sign(direction.x, self.velosity.x):
@@ -256,6 +261,8 @@ class Player(Character):
             self.jumpping = False
 
         self.handleTriggers(world)
+        
+        self.handleDamage()
 
         self.updatePlayerPosition(world, dt)
 

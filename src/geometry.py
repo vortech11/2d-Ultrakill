@@ -150,5 +150,10 @@ class Geometry:
     def isTriggerColliding(self, inputRect: list[Vector2]):
         return [trigger for trigger in self.geometry["triggers"] if self.isRectRectColliding(inputRect, trigger["points"])]
 
+    def calcContactDamage(self, inputRect: list[Vector2]):
+        damages = [1 for enemy in self.gameEngine.enemies if self.isRectRectColliding(inputRect, enemy.getRectBB())]
+        damages.append(0)
+        return max(damages)
+
     def isColliding(self, point: Vector2):
         return False

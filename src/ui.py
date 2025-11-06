@@ -11,6 +11,8 @@ class UiHandler:
     def __init__(self, gameEngine):
         self.gameEngine = gameEngine
         self.displayFont = pygame.font.SysFont("Arial", 20)
+        self.titleCard = pygame.font.SysFont("Arial", 50)
+        self.caption = pygame.font.SysFont("Arial", 20)
 
     def getBarRect(self, value, total, position: Vector2, endPosition: Vector2):
         return pygame.Rect(position.x, position.y, (endPosition.x) * value / total, endPosition.y)
@@ -68,6 +70,16 @@ class UiHandler:
             Vector2(playerWigitStart.x + staminaBarPadding.x, playerWigitStart.y + playerWigitEnd.y - staminaBarPadding.y - staminaBarHight * 2 - healthbarVerticalPad), 
             Vector2(playerWigitEnd.x - staminaBarPadding.x * 2, staminaBarHight)
         )
+        
+        if self.gameEngine.levelWin:
+            titleCard = self.titleCard.render("You Win", True, (255, 255, 255))
+            titlerect = titleCard.get_rect()
+            titlerect.center = (screenSize.x // 2, screenSize.y // 2) # type: ignore
+            caption = self.caption.render("Close game to play again", True, (255, 255, 255))
+            captionrect = caption.get_rect()
+            captionrect.center = (screenSize.x // 2, screenSize.y // 2 + 40) # type: ignore
+            screen.blit(titleCard, titlerect)
+            screen.blit(caption, captionrect)
 
         
 

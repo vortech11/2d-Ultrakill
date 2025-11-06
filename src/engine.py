@@ -45,9 +45,9 @@ class GameEngine:
         
         self.world.loadGeometryFile("level.json")
 
-    def tickWorld(self):
+    def tickWorld(self, dt):
         for enemy in self.enemies:
-            enemy.move()
+            enemy.move(dt)
 
     def renderEnemies(self):
         for enemy in self.enemies:

@@ -25,6 +25,7 @@ class colors(Enum):
     red = (255, 0, 0)
     yellow = (255, 194, 13)
     lightGreen = (0, 255, 0)
+    lightBlue = (36, 168, 224)
 
 colorsList = [color.value for color in colors]
 
@@ -203,6 +204,8 @@ class Editor():
                     self.drawColor = pygame.Color(colorsList[4])
                 if keys[pygame.K_6]:
                     self.drawColor = pygame.Color(colorsList[5])
+                if keys[pygame.K_7]:
+                    self.drawColor = pygame.Color(colorsList[6])
                     
             case modes.normal:
                 self.displayText = ""

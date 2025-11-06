@@ -40,6 +40,7 @@ while engine.running:
 
     if not engine.levelWin:
         engine.player.movePlayerDirection(dt, direction, engine.camera, engine.world)
+        engine.tickWorld(dt)
 
     engine.screen.fill((0, 0, 0))
 
