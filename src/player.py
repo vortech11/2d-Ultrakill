@@ -73,8 +73,20 @@ class Player(Character):
         self.grounded = 0
         self.walled = False
         self.closeGrounded = False
-
+        
+    def restartLevel(self):
+        # This is an absolute fuck of a hack
+        # I will come back to this later because THIS WILL NOT SCALE
+        self.position = Vector2(100, 100)
+        self.velosity = Vector2(0, 0)
+        
+        self.gameEngine.enemies[0].position = Vector2(400, 100)
     
+        self.health = 100
+        self.stamina = 100
+        self.currentState = self.State.NORMAL
+        self.gameEngine.camera.position.x = self.position.x
+        self.gameEngine.camera.position.y = self.position.y
     
     def updateGrounded(self, world):
         self.position.y += 20
@@ -163,6 +175,9 @@ class Player(Character):
                                 
     def handleDamage(self):
         self.health -= self.gameEngine.world.calcContactDamage(self.getRectBB())
+        
+        if self.health <= 0:
+            self.restartLevel()
             
     def movePlayerDirection(self, dt, direction: Vector2, camera, world):
         if self.currentState == self.State.NOCLIP:
