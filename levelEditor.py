@@ -177,7 +177,9 @@ class Editor():
                     self.engine.world.geometry["triggers"].append({
                         "points": self.pointData,
                         "func": "levelload",
-                        "perameters": []
+                        "perameters": [],
+                        "triggerOnce": False,
+                        "active": True
                     })
                     self.pointData = []
                     self.mode = modes.normal

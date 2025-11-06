@@ -40,6 +40,7 @@ class Geometry:
         for index, poly in enumerate(self.geometry["tri"]):
             points = [Vector2(poly["points"][index], poly["points"][index + 1]) for index in range(0, len(poly["points"]), 2)]
             self.geometry["tri"][index]["points"] = points
+        print(self.geometry["player"])
 
     def convertTriggerData(self):
         for index, rect in enumerate(self.geometry["triggers"]):

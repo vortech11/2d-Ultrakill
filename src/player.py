@@ -34,7 +34,7 @@ class Player(Character):
         
         super().__init__(
             gameEngine,
-            Vector2(100, 100), 
+            Vector2(gameEngine.world.geometry["player"]["startpos"]), 
             self.normalHitbox, 
             100,
             3000
@@ -77,10 +77,11 @@ class Player(Character):
     def restartLevel(self):
         # This is an absolute fuck of a hack
         # I will come back to this later because THIS WILL NOT SCALE
-        self.position = Vector2(100, 100)
+        self.position = Vector2(self.gameEngine.world.geometry["player"]["startpos"])
         self.velosity = Vector2(0, 0)
         
         self.gameEngine.enemies[0].position = Vector2(400, 100)
+        self.gameEngine.resetTriggers()
     
         self.health = 100
         self.stamina = 100
@@ -160,18 +161,22 @@ class Player(Character):
         collidingTriggers = world.isTriggerColliding(self.getRectBB())
         if any(collidingTriggers):
             for trigger in collidingTriggers:
-                match trigger["func"]:
-                    case "hurt":
-                        self.health -= trigger["perameters"][0]
-                    case "levelEnd":
-                        if any(self.collectables):
-                            self.gameEngine.levelWin = True
-                    case "collectable":
-                        self.collectables[trigger["perameters"][0]] = True
-                    case "powerup":
-                        match trigger["perameters"][0]:
-                            case "speed":
-                                self.powerupSpeed = trigger["perameters"][1]
+                if trigger["active"]:
+                    match trigger["func"]:
+                        case "hurt":
+                            self.health -= trigger["perameters"][0]
+                        case "levelEnd":
+                            if any(self.collectables):
+                                self.gameEngine.levelWin = True
+                        case "collectable":
+                            self.collectables[trigger["perameters"][0]] = True
+                        case "powerup":
+                            match trigger["perameters"][0]:
+                                case "speed":
+                                    self.powerupSpeed = trigger["perameters"][1]
+
+                if trigger["triggerOnce"]:
+                    trigger["active"] = False
                                 
     def handleDamage(self):
         if not self.currentState == self.State.DASH:

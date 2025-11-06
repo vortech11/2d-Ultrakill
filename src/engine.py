@@ -22,6 +22,10 @@ class GameEngine:
                 imageData[enemyName][imageName]["image"] = pygame.image.load(imageDir / enemyName / imageName).convert_alpha()
                 imageData[enemyName][imageName]["center"] = Vector2(image["center"])
         return imageData
+
+    def resetTriggers(self):
+        for trigger in self.world.geometry["triggers"]:
+            trigger["active"] = True
     
     def __init__(self, gameName="2D Ultrakill", screenSize=Vector2(800, 800)) -> None:
         self.screenSize = screenSize
@@ -36,6 +40,7 @@ class GameEngine:
         
         self.camera = Camera(self.screenSize)
         self.world = Geometry(self)
+        self.world.loadGeometryFile("level.json")
         self.player = Player(self)
         self.uiHandler = UiHandler(self)
 
@@ -43,8 +48,6 @@ class GameEngine:
         
         self.images = self.loadImages()
         
-        self.world.loadGeometryFile("level.json")
-
     def tickWorld(self, dt):
         for enemy in self.enemies:
             enemy.move(dt)
