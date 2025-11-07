@@ -182,8 +182,8 @@ class Editor():
                     self.pointData = self.fixRectWrapping(self.pointData)
                     self.engine.world.geometry["triggers"].append({
                         "points": self.pointData,
-                        "func": "levelload",
-                        "perameters": [],
+                        "func": "Nothing",
+                        "perameters": [len(self.engine.world.geometry["triggers"])],
                         "triggerOnce": False,
                         "active": True
                     })

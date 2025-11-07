@@ -80,7 +80,7 @@ class Player(Character):
         self.position = Vector2(self.gameEngine.world.geometry["player"]["startpos"])
         self.velosity = Vector2(0, 0)
         
-        self.gameEngine.enemies[0].position = Vector2(400, 100)
+        self.gameEngine.deleteAllEnemies()
         self.gameEngine.resetTriggers()
     
         self.health = 100
@@ -174,6 +174,8 @@ class Player(Character):
                             match trigger["perameters"][0]:
                                 case "speed":
                                     self.powerupSpeed = trigger["perameters"][1]
+                        case "spawnEnemies":
+                            self.gameEngine.spawnTriggerEnemies(trigger["perameters"][0])
 
                 if trigger["triggerOnce"]:
                     trigger["active"] = False
