@@ -75,9 +75,7 @@ class Player(Character):
         self.closeGrounded = False
         
     def restartLevel(self):
-        # This is an absolute fuck of a hack
-        # I will come back to this later because THIS WILL NOT SCALE
-        self.position = Vector2(self.gameEngine.world.geometry["player"]["startpos"])
+        self.teleportPlayer(self.gameEngine.world.geometry["player"]["startpos"])
         self.velosity = Vector2(0, 0)
         
         self.gameEngine.deleteAllEnemies()
@@ -86,8 +84,6 @@ class Player(Character):
         self.health = 100
         self.stamina = 100
         self.currentState = self.State.NORMAL
-        self.gameEngine.camera.position.x = self.position.x
-        self.gameEngine.camera.position.y = self.position.y
     
     def updateGrounded(self, world):
         self.position.y += 20
@@ -116,6 +112,12 @@ class Player(Character):
         if any(self.isAABBColliding(world)):
             self.walled = 1
         self.position.x += 10
+
+    def teleportPlayer(self, teleportPosition: Vector2):
+        cameraOffset = self.gameEngine.camera.position - self.position
+        self.position = teleportPosition.copy()
+        self.gameEngine.camera.position = self.position + cameraOffset
+        
         
     def updatePlayerPosition(self, world, dt):
         self.position.x += self.velosity.x * dt
