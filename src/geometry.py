@@ -40,12 +40,15 @@ class Geometry:
         for index, poly in enumerate(self.geometry["tri"]):
             points = [Vector2(poly["points"][index], poly["points"][index + 1]) for index in range(0, len(poly["points"]), 2)]
             self.geometry["tri"][index]["points"] = points
-        print(self.geometry["player"])
-
-    def convertTriggerData(self):
+            
         for index, rect in enumerate(self.geometry["triggers"]):
             points = self.generateRectVecorPoints(rect["points"])
             self.geometry["triggers"][index]["points"] = points
+            
+        for index, rect in enumerate(self.geometry["enemySpawner"]):
+            self.geometry["enemySpawner"][index]["position"] = Vector2(self.geometry["enemySpawner"][index]["position"])
+            
+        self.geometry["player"]["startpos"] = Vector2(self.geometry["player"]["startpos"])
             
     def saveGeometryFile(self):
         outGeometry = deepcopy(self.geometry)
@@ -63,9 +66,17 @@ class Geometry:
             points = []
             [points.extend([vector.x, vector.y]) for vector in poly["points"]]
             outGeometry["tri"][index]["points"] = points
+            
+        for index, rect in enumerate(outGeometry["enemySpawner"]):
+            outGeometry["enemySpawner"][index]["position"] = [rect["position"].x, rect["position"].y]
+            
+        outGeometry["player"]["startpos"] = [outGeometry["player"]["startpos"].x, outGeometry["player"]["startpos"].y]
         
         with open(self.currentFilePath, "w") as file:
             json.dump(outGeometry, file)
+            
+    def renderPoint(self, camera, screen, color, point):
+        draw.circle(screen, color, camera.transformPoint(point), 10)
         
     def renderRects(self, camera, screen):
         for rect in self.geometry["rect"]:
@@ -75,11 +86,15 @@ class Geometry:
         for poly in self.geometry["tri"]:
             draw.polygon(screen, poly["color"], [camera.transformPoint(point) for point in poly["points"]])
 
-    def renderTriggers(self, camera, screen):
+    def renderDevInfo(self, camera, screen):
         for rect in self.geometry["triggers"]:
             points = [camera.transformPoint(point) for point in rect["points"]]
             draw.rect(screen, (235, 199, 19), pygame.Rect(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y))
 
+        for spawner in self.geometry["enemySpawner"]:
+            self.renderPoint(camera, screen, (255, 0, 0), spawner["position"])
+            
+        self.renderPoint(camera, screen, (0, 0, 255), self.geometry["player"]["startpos"])
             
     def render(self, camera, screen):
         self.renderRects(camera, screen)

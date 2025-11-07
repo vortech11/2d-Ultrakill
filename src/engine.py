@@ -40,13 +40,15 @@ class GameEngine:
         
         self.camera = Camera(self.screenSize)
         self.world = Geometry(self)
-        self.world.loadGeometryFile("level.json")
         self.player = Player(self)
         self.uiHandler = UiHandler(self)
 
         self.enemies = [src.enemies.Filth(self, Vector2(400, 100))]
         
         self.images = self.loadImages()
+        
+        self.world.loadGeometryFile("level.json")
+        self.player.restartLevel()
         
     def tickWorld(self, dt):
         for enemy in self.enemies:

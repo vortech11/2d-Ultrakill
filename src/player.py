@@ -34,7 +34,7 @@ class Player(Character):
         
         super().__init__(
             gameEngine,
-            Vector2(gameEngine.world.geometry["player"]["startpos"]), 
+            Vector2(0, 0), 
             self.normalHitbox, 
             100,
             3000

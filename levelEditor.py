@@ -17,6 +17,8 @@ class modes(Enum):
     delete = 3
     color = 4
     trigger = 5
+    enemySpawn = 6
+    playerSpawn = 7
     
 class colors(Enum):
     darkGrey = (50, 50, 50)
@@ -80,6 +82,10 @@ class Editor():
                     self.mode = modes.color
                 if event.key == pygame.K_f:
                     self.mode = modes.trigger
+                if event.key == pygame.K_c:
+                    self.mode = modes.enemySpawn
+                if event.key == pygame.K_p:
+                    self.mode = modes.playerSpawn
                 if event.key == pygame.K_ESCAPE:
                     self.mode = modes.normal
                     self.pointData = []
@@ -192,6 +198,9 @@ class Editor():
                         del self.engine.world.geometry["tri"][toBeDel["tri"][-1]]
                     elif len(toBeDel["triggers"]) > 0:
                         del self.engine.world.geometry["triggers"][toBeDel["triggers"][-1]]
+            case modes.playerSpawn:
+                if mouseKeys[1]:
+                    self.engine.world.geometry["player"]["startpos"] = Vector2(self.engine.camera.unTransformPoint(mousePos))
             case modes.color:
                 self.displayText = f"{colors(self.drawColor).name}"
                 if keys[pygame.K_1]:
@@ -220,7 +229,6 @@ class Editor():
         self.engine.screen.blit(text_surface, (10, 10))
 
 engine = GameEngine("2D Ultrakill Level Editor", screenSize)
-engine.world.convertTriggerData()
 editor = Editor(engine)
 
 dt = 1
@@ -235,7 +243,7 @@ while engine.running:
 
     engine.world.render(engine.camera, engine.screen)
 
-    engine.world.renderTriggers(engine.camera, engine.screen)
+    engine.world.renderDevInfo(engine.camera, engine.screen)
 
     editor.userInput()
 
