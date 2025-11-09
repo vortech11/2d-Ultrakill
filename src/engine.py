@@ -36,8 +36,12 @@ class GameEngine:
                     case "Filth":
                         spawnedEnemy = src.enemies.Filth(self, Vector2(startPos))
                 self.enemies.append(spawnedEnemy)
+                
+    def startLevel(self, levelName):
+        self.world.loadGeometryFile(levelName)
+        self.player.restartLevel()
     
-    def __init__(self, gameName="2D Ultrakill", screenSize=Vector2(800, 800)) -> None:
+    def __init__(self, gameName="2D Ultrakill", screenSize=Vector2(800, 800), startLevel="levelSelect.json") -> None:
         self.screenSize = screenSize
         
         pygame.init()
@@ -46,7 +50,9 @@ class GameEngine:
         self.clock = pygame.time.Clock()
         self.running = True
         
+        self.currentLevel = startLevel
         self.levelWin = False
+        self.levelToBeLoaded = ""
         
         self.camera = Camera(self.screenSize)
         self.world = Geometry(self)
@@ -57,8 +63,7 @@ class GameEngine:
         
         self.images = self.loadImages()
         
-        self.world.loadGeometryFile("level.json")
-        self.player.restartLevel()
+        self.startLevel(startLevel)
         
     def tickWorld(self, dt):
         for enemy in self.enemies:

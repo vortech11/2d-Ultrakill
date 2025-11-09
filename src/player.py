@@ -1,8 +1,5 @@
 from pygame import Vector2
 
-from pygame import draw
-import pygame
-
 from src.enemies import Character
 
 from math import sqrt, copysign
@@ -168,6 +165,7 @@ class Player(Character):
                         case "levelEnd":
                             if any(self.collectables):
                                 self.gameEngine.levelWin = True
+                                self.gameEngine.levelToBeLoaded = trigger["perameters"][0]
                         case "collectable":
                             self.collectables[trigger["perameters"][0]] = True
                         case "powerup":

@@ -26,6 +26,7 @@ class Geometry:
         ]
 
     def loadGeometryFile(self, filePath):
+        self.gameEngine.currentLevel = filePath
         self.currentFilePath = Path("./levels") / filePath
         with open(self.currentFilePath) as file:
             self.geometry = json.load(file)

@@ -7,6 +7,7 @@ import pygame
 engine = GameEngine()
 
 while engine.running:
+    mouseKeys = [False, False, False]
     for event in pygame.event.get():
         if event.type == pygame.QUIT: 
             engine.running = False
@@ -22,6 +23,8 @@ while engine.running:
                 engine.player.Keys["K_LCTRL"] = False
             if event.key == pygame.K_LSHIFT:
                 engine.player.Keys["K_LSHIFT"] = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouseKeys = [True if event.button == index else False for index in range(3)]
 
     dt = engine.clock.tick(60) / 1000.0
 
@@ -41,19 +44,25 @@ while engine.running:
     if not engine.levelWin:
         engine.player.movePlayerDirection(dt, direction, engine.camera, engine.world)
         engine.tickWorld(dt)
+    elif engine.player.jumpping:
+        engine.world.loadGeometryFile(engine.levelToBeLoaded)
+        engine.player.restartLevel()
+        engine.levelWin = False
+        engine.player.jumpping = False
+        continue
+        
 
     engine.screen.fill((0, 0, 0))
-
-    engine.world.render(engine.camera, engine.screen)
-
-    engine.renderEnemies()
-
-    engine.player.renderSprite()
+    if engine.currentLevel == "levelSelect.json":
+        engine.uiHandler.handleMainMenu(engine.screen, engine.screenSize, Vector2(pygame.mouse.get_pos()), mouseKeys)
+    else:
+        engine.world.render(engine.camera, engine.screen)
+        engine.renderEnemies()
+        engine.player.renderSprite()
+        engine.uiHandler.renderUi(engine.player, engine.screen, engine.screenSize)
+    
 
     engine.camera.renderFPS(engine.clock, engine.screen)
-
-    engine.uiHandler.renderUi(engine.player, engine.screen, engine.screenSize)
-
     pygame.display.update()
 
 engine.shutdown()

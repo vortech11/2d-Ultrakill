@@ -10,6 +10,7 @@ import pygame
 class UiHandler:
     def __init__(self, gameEngine):
         self.gameEngine = gameEngine
+        self.screen = self.gameEngine.screen
         self.displayFont = pygame.font.SysFont("Arial", 20)
         self.titleCard = pygame.font.SysFont("Arial", 50)
         self.caption = pygame.font.SysFont("Arial", 20)
@@ -20,11 +21,7 @@ class UiHandler:
     def renderBar(self, screen, color, value, total, position: Vector2, relativeEnd: Vector2):
         pygame.draw.rect(screen, color, self.getBarRect(value, total, position, relativeEnd))
         
-    def renderUi(self, player, screen, screenSize:Vector2):
-        
-        #staminaText = self.displayFont.render(f"{player.stamina}", False, (58, 224, 219))
-
-        #screen.blit(staminaText, (100, 100))
+    def renderPlayerUi(self, player, screen, screenSize):
 
         playerWigitStart: Vector2 = Vector2(50, screenSize.y - 150)
         playerWigitEnd: Vector2 = Vector2(200, 100)
@@ -71,15 +68,33 @@ class UiHandler:
             Vector2(playerWigitEnd.x - staminaBarPadding.x * 2, staminaBarHight)
         )
         
+    def renderWinScreen(self, screen, screenSize):
+        titleCard = self.titleCard.render("You Win", True, (255, 255, 255))
+        titlerect = titleCard.get_rect()
+        titlerect.center = (screenSize.x // 2, screenSize.y // 2)
+        caption = self.caption.render("Press space to load next level", True, (255, 255, 255))
+        captionrect = caption.get_rect()
+        captionrect.center = (screenSize.x // 2, screenSize.y // 2 + 40)
+        screen.blit(titleCard, titlerect)
+        screen.blit(caption, captionrect)
+        
+    def handleMainMenu(self, screen, screenSize, mousePos, mouseDown):
+        titleCard = self.titleCard.render("2D Ultrakill", True, (255, 255, 255))
+        titlerect = titleCard.get_rect()
+        titlerect.center = (screenSize.x // 2, screenSize.y // 2)
+        caption = self.caption.render("Click screen to load into first level", True, (255, 255, 255))
+        captionrect = caption.get_rect()
+        captionrect.center = (screenSize.x // 2, screenSize.y // 2 + 40)
+        screen.blit(titleCard, titlerect)
+        screen.blit(caption, captionrect)
+        if mouseDown[1]:
+            self.gameEngine.startLevel("level.json")
+        
+    def renderUi(self, player, screen, screenSize:Vector2):
+        self.renderPlayerUi(player, screen, screenSize)
+        
         if self.gameEngine.levelWin:
-            titleCard = self.titleCard.render("You Win", True, (255, 255, 255))
-            titlerect = titleCard.get_rect()
-            titlerect.center = (screenSize.x // 2, screenSize.y // 2) # type: ignore
-            caption = self.caption.render("Close game to play again", True, (255, 255, 255))
-            captionrect = caption.get_rect()
-            captionrect.center = (screenSize.x // 2, screenSize.y // 2 + 40) # type: ignore
-            screen.blit(titleCard, titlerect)
-            screen.blit(caption, captionrect)
+            self.renderWinScreen(screen, screenSize)
 
         
 
