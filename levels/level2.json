@@ -71,7 +71,7 @@
         {
             "points": [-1990.0, 280.0, -1740.0, 290.0],
             "func": "levelEnd",
-            "perameters": ["levelSelect"],
+            "perameters": ["levelSelect.json"],
             "triggerOnce": false,
             "active": true
         },
