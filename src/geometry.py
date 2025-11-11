@@ -11,7 +11,8 @@ from copy import deepcopy
 class Geometry:
     def __init__(self, gameEngine):
         self.gameEngine = gameEngine
-        self.geometry = {}
+        self.collisionGeometry = {}
+        self.fullGeometry = {}
         self.currentFilePath: Path
         
     def generateRectVecorPoints(self, rectPoints):
@@ -29,73 +30,79 @@ class Geometry:
         self.gameEngine.currentLevel = filePath
         self.currentFilePath = Path("./levels") / filePath
         with open(self.currentFilePath) as file:
-            self.geometry = json.load(file)
+            self.fullGeometry = json.load(file)
+
+        self.collisionGeometry = self.fullGeometry["collisionGeometry"].deepcopy()
+        del self.fullGeometry["collisionGeometry"]
         
-        for index, rect in enumerate(self.geometry["rect"]):
+        for index, rect in enumerate(self.collisionGeometry["rect"]):
             points = self.generateRectVecorPoints(rect["points"])
-            self.geometry["rect"][index]["points"] = points
+            self.collisionGeometry["rect"][index]["points"] = points
         
-        for index, rect in enumerate(self.geometry["rect"]):
-            self.geometry["rect"][index]["renderPoints"] = self.generateRectPolyPoints(rect["points"])
+        for index, rect in enumerate(self.collisionGeometry["rect"]):
+            self.collisionGeometry["rect"][index]["renderPoints"] = self.generateRectPolyPoints(rect["points"])
             
-        for index, poly in enumerate(self.geometry["tri"]):
+        for index, poly in enumerate(self.collisionGeometry["tri"]):
             points = [Vector2(poly["points"][index], poly["points"][index + 1]) for index in range(0, len(poly["points"]), 2)]
-            self.geometry["tri"][index]["points"] = points
+            self.collisionGeometry["tri"][index]["points"] = points
             
-        for index, rect in enumerate(self.geometry["triggers"]):
+        for index, rect in enumerate(self.fullGeometry["triggers"]):
             points = self.generateRectVecorPoints(rect["points"])
-            self.geometry["triggers"][index]["points"] = points
+            self.fullGeometry["triggers"][index]["points"] = points
             
-        for index, rect in enumerate(self.geometry["enemySpawner"]):
-            self.geometry["enemySpawner"][index]["position"] = Vector2(self.geometry["enemySpawner"][index]["position"])
+        for index, rect in enumerate(self.fullGeometry["enemySpawner"]):
+            self.fullGeometry["enemySpawner"][index]["position"] = Vector2(self.fullGeometry["enemySpawner"][index]["position"])
             
-        self.geometry["player"]["startpos"] = Vector2(self.geometry["player"]["startpos"])
+        self.fullGeometry["player"]["startpos"] = Vector2(self.fullGeometry["player"]["startpos"])
             
     def saveGeometryFile(self):
-        outGeometry = deepcopy(self.geometry)
+        outCollisionGeometry = deepcopy(self.collisionGeometry)
+        outFullGeometry = deepcopy(self.fullGeometry)
         
-        for index, rect in enumerate(outGeometry["rect"]):
+        for index, rect in enumerate(outCollisionGeometry["rect"]):
             points = [rect["points"][0].x, rect["points"][0].y, rect["points"][1].x, rect["points"][1].y]
-            outGeometry["rect"][index]["points"] = points
-            del outGeometry["rect"][index]["renderPoints"]
+            outCollisionGeometry["rect"][index]["points"] = points
+            del outCollisionGeometry["rect"][index]["renderPoints"]
 
-        for index, rect in enumerate(outGeometry["triggers"]):
+        for index, rect in enumerate(outCollisionGeometry["triggers"]):
             points = [rect["points"][0].x, rect["points"][0].y, rect["points"][1].x, rect["points"][1].y]
-            outGeometry["triggers"][index]["points"] = points
+            outCollisionGeometry["triggers"][index]["points"] = points
             
-        for index, poly in enumerate(outGeometry["tri"]):
+        for index, poly in enumerate(outCollisionGeometry["tri"]):
             points = []
             [points.extend([vector.x, vector.y]) for vector in poly["points"]]
-            outGeometry["tri"][index]["points"] = points
+            outCollisionGeometry["tri"][index]["points"] = points
+
+        outFullGeometry["collisionGeometry"] = outCollisionGeometry
             
-        for index, rect in enumerate(outGeometry["enemySpawner"]):
-            outGeometry["enemySpawner"][index]["position"] = [rect["position"].x, rect["position"].y]
+        for index, rect in enumerate(outFullGeometry["enemySpawner"]):
+            outFullGeometry["enemySpawner"][index]["position"] = [rect["position"].x, rect["position"].y]
             
-        outGeometry["player"]["startpos"] = [outGeometry["player"]["startpos"].x, outGeometry["player"]["startpos"].y]
+        outFullGeometry["player"]["startpos"] = [outFullGeometry["player"]["startpos"].x, outFullGeometry["player"]["startpos"].y]
         
         with open(self.currentFilePath, "w") as file:
-            json.dump(outGeometry, file)
+            json.dump(outFullGeometry, file)
             
     def renderPoint(self, camera, screen, color, point):
         draw.circle(screen, color, camera.transformPoint(point), 10)
         
     def renderRects(self, camera, screen):
-        for rect in self.geometry["rect"]:
+        for rect in self.collisionGeometry["rect"]:
             draw.polygon(screen, rect["color"], [camera.transformPoint(point) for point in rect["renderPoints"]])
             
     def renderPoly(self, camera, screen):
-        for poly in self.geometry["tri"]:
+        for poly in self.collisionGeometry["tri"]:
             draw.polygon(screen, poly["color"], [camera.transformPoint(point) for point in poly["points"]])
 
     def renderDevInfo(self, camera, screen):
-        for rect in self.geometry["triggers"]:
+        for rect in self.fullGeometry["triggers"]:
             points = [camera.transformPoint(point) for point in rect["points"]]
             draw.rect(screen, (235, 199, 19), pygame.Rect(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y))
 
-        for spawner in self.geometry["enemySpawner"]:
+        for spawner in self.fullGeometry["enemySpawner"]:
             self.renderPoint(camera, screen, (255, 0, 0), spawner["position"])
             
-        self.renderPoint(camera, screen, (0, 0, 255), self.geometry["player"]["startpos"])
+        self.renderPoint(camera, screen, (0, 0, 255), self.fullGeometry["player"]["startpos"])
             
     def render(self, camera, screen):
         self.renderRects(camera, screen)
@@ -126,13 +133,13 @@ class Geometry:
     
     def isPointColliding(self, point: Vector2):
         data = {"rect": [], "tri": [], "triggers": []}
-        for index, item in enumerate(self.geometry["rect"]):
+        for index, item in enumerate(self.collisionGeometry["rect"]):
             if self.isPointRectColliding(point, item["points"]):
                 data["rect"].append(index)
-        for index, item in enumerate(self.geometry["tri"]):
+        for index, item in enumerate(self.collisionGeometry["tri"]):
             if self.isPointTriColliding(point, item["points"]):
                 data["tri"].append(index)
-        for index, item in enumerate(self.geometry["triggers"]):
+        for index, item in enumerate(self.fullGeometry["triggers"]):
             if self.isPointRectColliding(point, item["points"]):
                 data["triggers"].append(index)
         return data
@@ -152,7 +159,7 @@ class Geometry:
         return any([self.isLineLineColliding(p1, p2, point, poly[(index + 1) % len(poly)]) for index, point in enumerate(poly)])
     
     def isLineColliding(self, p1: Vector2, p2: Vector2):
-        return any([self.isLinePolyColliding(p1, p2, poly["points"]) for poly in self.geometry["tri"]])
+        return any([self.isLinePolyColliding(p1, p2, poly["points"]) for poly in self.collisionGeometry["tri"]])
     
     def isPolyColliding(self, poly: list[Vector2]):
         return any([self.isLineColliding(point, poly[(index + 1) % len(poly)]) for index, point in enumerate(poly)])
@@ -162,10 +169,10 @@ class Geometry:
             
     def isRectColliding(self, inputRect):
         #return any([pygame.Rect.colliderect(self.generateRect(inputRect), self.generateRect(rect["points"])) for rect in self.geometry["rect"]])              WTF is wrong with this???????
-        return any([self.isRectRectColliding(inputRect, rect["points"]) for rect in self.geometry["rect"]])
+        return any([self.isRectRectColliding(inputRect, rect["points"]) for rect in self.collisionGeometry["rect"]])
 
     def isTriggerColliding(self, inputRect: list[Vector2]):
-        return [trigger for trigger in self.geometry["triggers"] if self.isRectRectColliding(inputRect, trigger["points"])]
+        return [trigger for trigger in self.fullGeometry["triggers"] if self.isRectRectColliding(inputRect, trigger["points"])]
 
     def calcContactDamage(self, inputRect: list[Vector2]):
         damages = [1 for enemy in self.gameEngine.enemies if self.isRectRectColliding(inputRect, enemy.getRectBB())]
