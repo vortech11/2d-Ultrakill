@@ -72,7 +72,7 @@ class Player(Character):
         self.closeGrounded = False
         
     def restartLevel(self):
-        self.teleportPlayer(self.gameEngine.world.geometry["player"]["startpos"])
+        self.teleportPlayer(self.gameEngine.world.fullGeometry["player"]["startpos"])
         self.velosity = Vector2(0, 0)
         
         self.gameEngine.deleteAllEnemies()

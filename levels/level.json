@@ -305,7 +305,9 @@
                 290.0
             ],
             "func": "levelEnd",
-            "perameters": [],
+            "perameters": [
+                "level2.json"
+            ],
             "triggerOnce": false,
             "active": true
         },

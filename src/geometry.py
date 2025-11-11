@@ -32,7 +32,9 @@ class Geometry:
         with open(self.currentFilePath) as file:
             self.fullGeometry = json.load(file)
 
-        self.collisionGeometry = self.fullGeometry["collisionGeometry"].deepcopy()
+        #print(self.fullGeometry)
+
+        self.collisionGeometry = deepcopy(self.fullGeometry["collisionGeometry"])
         del self.fullGeometry["collisionGeometry"]
         
         for index, rect in enumerate(self.collisionGeometry["rect"]):
