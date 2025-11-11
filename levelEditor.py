@@ -126,7 +126,7 @@ class Editor():
                     )
                 if len(self.pointData) == 2:
                     self.pointData = self.fixRectWrapping(self.pointData)
-                    self.engine.world.geometry["rect"].append({
+                    self.engine.world.collisionGeometry["rect"].append({
                         "points": self.pointData,
                         "renderPoints": self.engine.world.generateRectPolyPoints(self.pointData),
                         "color": [self.drawColor[0], self.drawColor[1], self.drawColor[2]]
@@ -159,7 +159,7 @@ class Editor():
                     )
                 if len(self.pointData) == 3:
                     self.pointData = self.fixTriWrapping(self.pointData)
-                    self.engine.world.geometry["tri"].append({
+                    self.engine.world.collisionGeometry["tri"].append({
                         "points": self.pointData,
                         "color": [self.drawColor[0], self.drawColor[1], self.drawColor[2]]
                     })
@@ -180,10 +180,10 @@ class Editor():
                     )
                 if len(self.pointData) == 2:
                     self.pointData = self.fixRectWrapping(self.pointData)
-                    self.engine.world.geometry["triggers"].append({
+                    self.engine.world.fullGeometry["triggers"].append({
                         "points": self.pointData,
                         "func": "Nothing",
-                        "perameters": [len(self.engine.world.geometry["triggers"])],
+                        "perameters": [len(self.engine.world.fullGeometry["triggers"])],
                         "triggerOnce": False,
                         "active": True
                     })
@@ -193,14 +193,14 @@ class Editor():
                 if mouseKeys[1]:
                     toBeDel = self.engine.world.isPointColliding(self.engine.camera.unTransformPoint(mousePos))
                     if len(toBeDel["rect"]) > 0:
-                        del self.engine.world.geometry["rect"][toBeDel["rect"][-1]]
+                        del self.engine.world.collisionGeometry["rect"][toBeDel["rect"][-1]]
                     if len(toBeDel["tri"]) > 0:
-                        del self.engine.world.geometry["tri"][toBeDel["tri"][-1]]
+                        del self.engine.world.collisionGeometry["tri"][toBeDel["tri"][-1]]
                     elif len(toBeDel["triggers"]) > 0:
-                        del self.engine.world.geometry["triggers"][toBeDel["triggers"][-1]]
+                        del self.engine.world.fullGeometry["triggers"][toBeDel["triggers"][-1]]
             case modes.playerSpawn:
                 if mouseKeys[1]:
-                    self.engine.world.geometry["player"]["startpos"] = Vector2(self.engine.camera.unTransformPoint(mousePos))
+                    self.engine.world.fullGeometry["player"]["startpos"] = Vector2(self.engine.camera.unTransformPoint(mousePos))
             case modes.color:
                 self.displayText = f"{colors(self.drawColor).name}"
                 if keys[pygame.K_1]:

@@ -24,11 +24,11 @@ class GameEngine:
         return imageData
 
     def resetTriggers(self):
-        for trigger in self.world.geometry["triggers"]:
+        for trigger in self.world.collisionGeometry["triggers"]:
             trigger["active"] = True
             
     def spawnTriggerEnemies(self, triggerIndex):
-        for enemyTrigger in self.world.geometry["enemySpawner"]:
+        for enemyTrigger in self.world.collisionGeometry["enemySpawner"]:
             if enemyTrigger["triggerParentIndex"] == triggerIndex:
                 spawnedEnemy = None
                 startPos = enemyTrigger["position"]
