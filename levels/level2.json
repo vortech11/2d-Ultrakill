@@ -284,6 +284,10 @@
             }
         ]
     },
+    "renderGeometry": {
+        "rect": [],
+        "tri": []
+    },
     "enemySpawner": [
         {
             "position": [

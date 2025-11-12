@@ -1,4 +1,88 @@
 {
+    "enemySpawner": [
+        {
+            "position": [
+                0.0,
+                0.0
+            ],
+            "enemyType": "Filth",
+            "triggerParentIndex": 4
+        }
+    ],
+    "triggers": [
+        {
+            "points": [
+                2520.0,
+                240.0,
+                3010.0,
+                300.0
+            ],
+            "func": "hurt",
+            "perameters": [
+                1
+            ],
+            "triggerOnce": false,
+            "active": true
+        },
+        {
+            "points": [
+                -1040.0,
+                260.0,
+                -780.0,
+                290.0
+            ],
+            "func": "collectable",
+            "perameters": [
+                1
+            ],
+            "triggerOnce": true,
+            "active": true
+        },
+        {
+            "points": [
+                -1990.0,
+                280.0,
+                -1740.0,
+                290.0
+            ],
+            "func": "levelEnd",
+            "perameters": [
+                "level2.json"
+            ],
+            "triggerOnce": false,
+            "active": true
+        },
+        {
+            "points": [
+                1380.0,
+                50.0,
+                1470.0,
+                300.0
+            ],
+            "func": "spawnEnemies",
+            "perameters": [
+                4
+            ],
+            "triggerOnce": true,
+            "active": true
+        }
+    ],
+    "player": {
+        "startpos": [
+            354.0,
+            74.0
+        ],
+        "save": {
+            "pos": [
+                250,
+                170
+            ],
+            "velosity": [
+                0,
+                0
+            ]
+        }
+    },
     "collisionGeometry": {
         "rect": [
             {
@@ -258,88 +342,8 @@
             }
         ]
     },
-    "enemySpawner": [
-        {
-            "position": [
-                0.0,
-                0.0
-            ],
-            "enemyType": "Filth",
-            "triggerParentIndex": 4
-        }
-    ],
-    "triggers": [
-        {
-            "points": [
-                2520.0,
-                240.0,
-                3010.0,
-                300.0
-            ],
-            "func": "hurt",
-            "perameters": [
-                1
-            ],
-            "triggerOnce": false,
-            "active": true
-        },
-        {
-            "points": [
-                -1040.0,
-                260.0,
-                -780.0,
-                290.0
-            ],
-            "func": "collectable",
-            "perameters": [
-                1
-            ],
-            "triggerOnce": true,
-            "active": true
-        },
-        {
-            "points": [
-                -1990.0,
-                280.0,
-                -1740.0,
-                290.0
-            ],
-            "func": "levelEnd",
-            "perameters": [
-                "level2.json"
-            ],
-            "triggerOnce": false,
-            "active": true
-        },
-        {
-            "points": [
-                1380.0,
-                50.0,
-                1470.0,
-                300.0
-            ],
-            "func": "spawnEnemies",
-            "perameters": [
-                4
-            ],
-            "triggerOnce": true,
-            "active": true
-        }
-    ],
-    "player": {
-        "startpos": [
-            354.0,
-            74.0
-        ],
-        "save": {
-            "pos": [
-                250,
-                170
-            ],
-            "velosity": [
-                0,
-                0
-            ]
-        }
+    "renderGeometry": {
+        "rect": [],
+        "tri": []
     }
 }

@@ -228,7 +228,7 @@ class Editor():
         text_surface = DEBUG_FONT.render(f"{modes(editor.mode).name} {editor.displayText}", True, (255, 255, 255))
         self.engine.screen.blit(text_surface, (10, 10))
 
-engine = GameEngine("2D Ultrakill Level Editor", screenSize, "levelSelect.json")
+engine = GameEngine("2D Ultrakill Level Editor", screenSize, "level.json")
 editor = Editor(engine)
 
 dt = 1

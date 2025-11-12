@@ -17,6 +17,10 @@
         ],
         "tri": []
     },
+    "renderGeometry": {
+        "rect": [],
+        "tri": []
+    },
     "enemySpawner": [],
     "triggers": [],
     "player": {
