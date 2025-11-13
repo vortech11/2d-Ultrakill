@@ -7,7 +7,7 @@ import pygame
 engine = GameEngine()
 
 while engine.running:
-    mouseKeys = [False, False, False]
+    mouseButtons = [False, False, False]
     for event in pygame.event.get():
         if event.type == pygame.QUIT: 
             engine.running = False
@@ -24,7 +24,7 @@ while engine.running:
             if event.key == pygame.K_LSHIFT:
                 engine.player.Keys["K_LSHIFT"] = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mouseKeys = [True if event.button == index else False for index in range(3)]
+            mouseButtons = [True if event.button == index else False for index in range(3)]
 
     dt = engine.clock.tick(60) / 1000.0
 
@@ -54,7 +54,7 @@ while engine.running:
 
     engine.screen.fill((0, 0, 0))
     if engine.currentLevel == "levelSelect.json":
-        engine.uiHandler.handleMainMenu(engine.screen, engine.screenSize, Vector2(pygame.mouse.get_pos()), mouseKeys)
+        engine.uiHandler.handleMainMenu(engine.screen, engine.screenSize, Vector2(pygame.mouse.get_pos()), mouseButtons)
     else:
         engine.world.render(engine.camera, engine.screen)
         engine.renderEnemies()

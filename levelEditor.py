@@ -19,6 +19,7 @@ class modes(Enum):
     trigger = 5
     enemySpawn = 6
     playerSpawn = 7
+    setRenderLayer = 8
     
 class colors(Enum):
     darkGrey = (50, 50, 50)
@@ -38,6 +39,7 @@ class Editor():
         self.pointData = []
         self.displayText = "0"
         self.drawColor = (100, 100, 100)
+        self.renderLayer = 0
         
     def fixRectWrapping(self, rect: list[Vector2]):
         if rect[0].x > rect[1].x:
@@ -86,6 +88,8 @@ class Editor():
                     self.mode = modes.enemySpawn
                 if event.key == pygame.K_p:
                     self.mode = modes.playerSpawn
+                if event.key == pygame.K_BACKSLASH:
+                    self.mode = modes.setRenderLayer
                 if event.key == pygame.K_ESCAPE:
                     self.mode = modes.normal
                     self.pointData = []
@@ -126,7 +130,11 @@ class Editor():
                     )
                 if len(self.pointData) == 2:
                     self.pointData = self.fixRectWrapping(self.pointData)
-                    self.engine.world.collisionGeometry["rect"].append({
+                    if self.renderLayer == 0:
+                        geometryData = self.engine.world.collisionGeometry["rect"]
+                    else:
+                        geometryData = self.engine.world.renderGeometry["rect"]
+                    geometryData.append({
                         "points": self.pointData,
                         "renderPoints": self.engine.world.generateRectPolyPoints(self.pointData),
                         "color": [self.drawColor[0], self.drawColor[1], self.drawColor[2]]
@@ -159,6 +167,10 @@ class Editor():
                     )
                 if len(self.pointData) == 3:
                     self.pointData = self.fixTriWrapping(self.pointData)
+                    if self.renderLayer == 0:
+                        geometryData = self.engine.world.collisionGeometry["tri"]
+                    else:
+                        geometryData = self.engine.world.renderGeometry["tri"]
                     self.engine.world.collisionGeometry["tri"].append({
                         "points": self.pointData,
                         "color": [self.drawColor[0], self.drawColor[1], self.drawColor[2]]
@@ -217,6 +229,13 @@ class Editor():
                     self.drawColor = pygame.Color(colorsList[5])
                 if keys[pygame.K_7]:
                     self.drawColor = pygame.Color(colorsList[6])
+            case modes.setRenderLayer:
+                self.displayText = f"{self.renderLayer}"
+                if keys[pygame.K_0]:
+                    self.renderLayer = 0
+                if keys[pygame.K_1]:
+                    self.renderLayer = 1
+
                     
             case modes.normal:
                 self.displayText = ""

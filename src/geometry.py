@@ -121,8 +121,10 @@ class Geometry:
             
     def render(self, camera, screen):
         self.renderRects(self.collisionGeometry["rect"], camera, screen)
-        
         self.renderPoly(self.collisionGeometry["tri"], camera, screen)
+
+        self.renderRects(self.renderGeometry["rect"], camera, screen)
+        self.renderPoly(self.renderGeometry["tri"], camera, screen)
         
     def generateRect(self, pointList: list[Vector2]):
         return pygame.Rect(pointList[0].x, pointList[0].y, pointList[1].x, pointList[1].y)
