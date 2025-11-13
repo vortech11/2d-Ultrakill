@@ -24,6 +24,7 @@ class modes(Enum):
 class colors(Enum):
     darkGrey = (50, 50, 50)
     lightGrey = (100, 100, 100)
+    darkerGrey = (10, 10, 10)
     green = (31, 158, 27)
     red = (255, 0, 0)
     yellow = (255, 194, 13)
@@ -171,7 +172,7 @@ class Editor():
                         geometryData = self.engine.world.collisionGeometry["tri"]
                     else:
                         geometryData = self.engine.world.renderGeometry["tri"]
-                    self.engine.world.collisionGeometry["tri"].append({
+                    geometryData.append({
                         "points": self.pointData,
                         "color": [self.drawColor[0], self.drawColor[1], self.drawColor[2]]
                     })
@@ -203,11 +204,15 @@ class Editor():
                     self.mode = modes.normal
             case modes.delete:
                 if mouseKeys[1]:
-                    toBeDel = self.engine.world.isPointColliding(self.engine.camera.unTransformPoint(mousePos))
+                    if self.renderLayer == 0:
+                        geometryData = self.engine.world.collisionGeometry
+                    else:
+                        geometryData = self.engine.world.renderGeometry
+                    toBeDel = self.engine.world.isPointColliding(geometryData, self.engine.camera.unTransformPoint(mousePos))
                     if len(toBeDel["rect"]) > 0:
-                        del self.engine.world.collisionGeometry["rect"][toBeDel["rect"][-1]]
+                        del geometryData["rect"][toBeDel["rect"][-1]]
                     if len(toBeDel["tri"]) > 0:
-                        del self.engine.world.collisionGeometry["tri"][toBeDel["tri"][-1]]
+                        del geometryData["tri"][toBeDel["tri"][-1]]
                     elif len(toBeDel["triggers"]) > 0:
                         del self.engine.world.fullGeometry["triggers"][toBeDel["triggers"][-1]]
             case modes.playerSpawn:
@@ -229,6 +234,8 @@ class Editor():
                     self.drawColor = pygame.Color(colorsList[5])
                 if keys[pygame.K_7]:
                     self.drawColor = pygame.Color(colorsList[6])
+                if keys[pygame.K_8]:
+                    self.drawColor = pygame.Color(colorList[7])
             case modes.setRenderLayer:
                 self.displayText = f"{self.renderLayer}"
                 if keys[pygame.K_0]:

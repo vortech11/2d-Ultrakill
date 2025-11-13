@@ -120,11 +120,10 @@ class Geometry:
         self.renderPoint(camera, screen, (0, 0, 255), self.fullGeometry["player"]["startpos"])
             
     def render(self, camera, screen):
-        self.renderRects(self.collisionGeometry["rect"], camera, screen)
-        self.renderPoly(self.collisionGeometry["tri"], camera, screen)
-
         self.renderRects(self.renderGeometry["rect"], camera, screen)
         self.renderPoly(self.renderGeometry["tri"], camera, screen)
+        self.renderRects(self.collisionGeometry["rect"], camera, screen)
+        self.renderPoly(self.collisionGeometry["tri"], camera, screen)
         
     def generateRect(self, pointList: list[Vector2]):
         return pygame.Rect(pointList[0].x, pointList[0].y, pointList[1].x, pointList[1].y)
@@ -148,12 +147,12 @@ class Geometry:
         
         return A == A1 + A2 + A3
     
-    def isPointColliding(self, point: Vector2):
+    def isPointColliding(self, geometryData, point: Vector2):
         data = {"rect": [], "tri": [], "triggers": []}
-        for index, item in enumerate(self.collisionGeometry["rect"]):
+        for index, item in enumerate(geometryData["rect"]):
             if self.isPointRectColliding(point, item["points"]):
                 data["rect"].append(index)
-        for index, item in enumerate(self.collisionGeometry["tri"]):
+        for index, item in enumerate(geometryData["tri"]):
             if self.isPointTriColliding(point, item["points"]):
                 data["tri"].append(index)
         for index, item in enumerate(self.fullGeometry["triggers"]):
