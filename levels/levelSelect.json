@@ -1,12 +1,42 @@
 {
-    "rect": [
-        { "points": [240.0, -20.0, 540.0, 220.0], "color": [100, 100, 100] }
-    ],
-    "tri": [],
+    "collisionGeometry": {
+        "rect": [
+            {
+                "points": [
+                    240.0,
+                    -20.0,
+                    540.0,
+                    220.0
+                ],
+                "color": [
+                    100,
+                    100,
+                    100
+                ]
+            }
+        ],
+        "tri": []
+    },
+    "renderGeometry": {
+        "rect": [],
+        "tri": []
+    },
     "enemySpawner": [],
     "triggers": [],
     "player": {
-        "startpos": [354.0, 74.0],
-        "save": { "pos": [250, 170], "velosity": [0, 0] }
+        "startpos": [
+            354.0,
+            74.0
+        ],
+        "save": {
+            "pos": [
+                250,
+                170
+            ],
+            "velosity": [
+                0,
+                0
+            ]
+        }
     }
 }
