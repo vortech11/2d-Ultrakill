@@ -3,6 +3,8 @@
 
 def applyHitscanDamage(world, position, direction, damage, pierce=1):
     collitions = world.isRayColliding(position, direction, pierce)
+    if not collitions:
+        return position + (direction * 100000)
     for collition in collitions:
         if not collition[1] is None:
             collition[1].health -= damage
