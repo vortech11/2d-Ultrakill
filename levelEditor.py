@@ -235,7 +235,7 @@ class Editor():
                 if keys[pygame.K_7]:
                     self.drawColor = pygame.Color(colorsList[6])
                 if keys[pygame.K_8]:
-                    self.drawColor = pygame.Color(colorList[7])
+                    self.drawColor = pygame.Color(colorsList[7])
             case modes.setRenderLayer:
                 self.displayText = f"{self.renderLayer}"
                 if keys[pygame.K_0]:

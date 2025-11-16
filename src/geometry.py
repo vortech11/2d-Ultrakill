@@ -170,15 +170,14 @@ class Geometry:
         UB = (((p2.x - p1.x) * (p1.y - p3.y)) - ((p2.y - p1.y) * (p1.x - p3.x))) / denom
         
         return 0.0 <= UA <= 1.0 and 0.0 <= UB <= 1.0
+    
+    def getLinesFromObjects(self, list, objects, points="points"):
+        for object in objects:
+            list.extend([[point, object[points][(index + 1) % (len(object[points]))]] for index, point in enumerate(object[points])])
+        return list
 
     # Big thanks to Basstabs for this algorithm
     def rayLinesegIntersect(self, position: Vector2, ray: Vector2, start: Vector2, end: Vector2):
-        #Ensure the ray can be raycast
-        if ray.x == 0.0 and ray.y == 0.0:
-            return None
-            print("RAY IS ZERO! I DON'T WANT TO DO ERROR HANDLING SO GO TO THE rayLinesegIntersect FUNC,\
-                LAST TIME I CHECKED IT WAS ON LINE 175 IN THE geometry.py FILE!!!!")
-
         rise = end.y - start.y
         run = end.x - start.x
 
@@ -186,24 +185,34 @@ class Geometry:
         if denominator == 0: #The ray and the segment are parallel, so there is no intersection to find
             return None
 
-        segment_param = (location.y * ray.x + start.x * ray.y - location.x * ray.y - start.y * ray.x) / denominator
+        segment_param = (position.y * ray.x + start.x * ray.y - position.x * ray.y - start.y * ray.x) / denominator
         if segment_param < 0 or segment_param > 1.0: #The lines intersect outside the segment, so there is no intersection
             return None
 
         if ray.x == 0.0:
-            ray_param = (start.y - location.y + rise * segment_param) / ray.y
+            collidingDist = (start.y - position.y + rise * segment_param) / ray.y
         else:
-            ray_param = (start.x - location.x + run * segment_param) / ray.x
+            collidingDist = (start.x - position.x + run * segment_param) / ray.x
 
-        if ray_param < 0: #The opposite of the ray intersects the segment, not the ray itself
+        if collidingDist < 0: #The opposite of the ray intersects the segment, not the ray itself
             return None
 
-        return ray_param
+        return collidingDist
 
     def isRayColliding(self, position: Vector2, ray: Vector2):
+        ray.normalize()
         lines = []
-        for rect in self.collisionGeometry["rect"]:
-            lines.extend([[point]])
+        self.getLinesFromObjects(lines, self.collisionGeometry["rect"], "renderPoints")
+        self.getLinesFromObjects(lines, self.collisionGeometry["tri"])
+        contacts = [self.rayLinesegIntersect(position, ray, line[0], line[1]) for line in lines]
+        contacts = [num for num in contacts if not num == None]
+        contacts = sorted(contacts)
+        if not contacts:
+            return None
+        
+        firstContact = contacts[0]
+        firstPoint = position + (ray * firstContact)
+        return firstPoint
 
     
     def isLinePolyColliding(self, p1: Vector2, p2: Vector2, poly: list[Vector2]):
@@ -229,6 +238,3 @@ class Geometry:
         damages = [1 for enemy in self.gameEngine.enemies if self.isRectRectColliding(inputRect, enemy.getRectBB())]
         damages.append(0)
         return max(damages)
-
-    def isColliding(self, point: Vector2):
-        return False

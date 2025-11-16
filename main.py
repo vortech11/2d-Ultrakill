@@ -41,6 +41,8 @@ while engine.running:
     if engine.camera.zoom <= 0:
         engine.camera.zoom = 0
 
+    engine.screen.fill((0, 0, 0))
+    
     if not engine.levelWin:
         engine.player.movePlayerDirection(dt, direction, engine.camera, engine.world)
         engine.tickWorld(dt)
@@ -51,8 +53,6 @@ while engine.running:
         engine.player.jumpping = False
         continue
         
-
-    engine.screen.fill((0, 0, 0))
     if engine.currentLevel == "levelSelect.json":
         engine.uiHandler.handleMainMenu(engine.screen, engine.screenSize, Vector2(pygame.mouse.get_pos()), mouseButtons)
     else:
@@ -60,6 +60,10 @@ while engine.running:
         engine.renderEnemies()
         engine.player.renderSprite()
         engine.uiHandler.renderUi(engine.player, engine.screen, engine.screenSize)
+        
+    collidingPoint = engine.world.isRayColliding(engine.player.position, Vector2(0, -1))
+    if not collidingPoint is None:
+        engine.world.renderPoint(engine.camera, engine.screen, (255, 0, 0), collidingPoint)
     
 
     engine.camera.renderFPS(engine.clock, engine.screen)
