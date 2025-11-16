@@ -1,6 +1,3 @@
-
-
-
 from pygame import Vector2
 from pygame import draw
 from pygame import transform

@@ -98,8 +98,11 @@ class Geometry:
         with open(self.currentFilePath, "w") as file:
             json.dump(outFullGeometry, file)
             
-    def renderPoint(self, camera, screen, color, point):
-        draw.circle(screen, color, camera.transformPoint(point), 10)
+    def renderPoint(self, camera, screen, color, point, size=10):
+        draw.circle(screen, color, camera.transformPoint(point), size)
+        
+    def renderLine(self, camera, screen, color, start, end, width=10):
+        pygame.draw.line(screen, color, camera.transformPoint(start), camera.transformPoint(end), width)
         
     def renderRects(self, rects, camera, screen):
         for rect in rects:
@@ -173,9 +176,14 @@ class Geometry:
     
     def getLinesFromObjects(self, list, objects, points="points"):
         for object in objects:
-            list.extend([[point, object[points][(index + 1) % (len(object[points]))]] for index, point in enumerate(object[points])])
+            list.extend([[[point, object[points][(index + 1) % (len(object[points]))]], None] for index, point in enumerate(object[points])])
         return list
-
+    
+    def getLinesFromEnemies(self, list, enemies):
+        for enemy in enemies:
+            list.extend([[[point + enemy.position, enemy.hitbox[(index + 1) % (len(enemy.hitbox))] + enemy.position], enemy] for index, point in enumerate(enemy.hitbox)])
+        return list
+    
     # Big thanks to Basstabs for this algorithm
     def rayLinesegIntersect(self, position: Vector2, ray: Vector2, start: Vector2, end: Vector2):
         rise = end.y - start.y
@@ -199,20 +207,21 @@ class Geometry:
 
         return collidingDist
 
-    def isRayColliding(self, position: Vector2, ray: Vector2):
+    def isRayColliding(self, position: Vector2, ray: Vector2, pierce=1):
         ray.normalize()
         lines = []
         self.getLinesFromObjects(lines, self.collisionGeometry["rect"], "renderPoints")
         self.getLinesFromObjects(lines, self.collisionGeometry["tri"])
-        contacts = [self.rayLinesegIntersect(position, ray, line[0], line[1]) for line in lines]
-        contacts = [num for num in contacts if not num == None]
-        contacts = sorted(contacts)
+        self.getLinesFromEnemies(lines, self.gameEngine.enemies)
+        contacts = [[self.rayLinesegIntersect(position, ray, line[0][0], line[0][1]), line[1]] for line in lines]
+        contacts = [num for num in contacts if not num[0] == None]
+        contacts.sort(key=lambda item: item[0])
         if not contacts:
-            return None
+            return []
         
-        firstContact = contacts[0]
-        firstPoint = position + (ray * firstContact)
-        return firstPoint
+        contacts = contacts[0:pierce]
+        points = [[position + (ray * collide[0]), collide[1]] for collide in contacts]
+        return points
 
     
     def isLinePolyColliding(self, p1: Vector2, p2: Vector2, poly: list[Vector2]):

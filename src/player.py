@@ -1,6 +1,7 @@
 from pygame import Vector2
 
 from src.enemies import Character
+from src.weapons import Pistol
 
 from math import sqrt, copysign
 
@@ -38,6 +39,13 @@ class Player(Character):
         )
 
         self.collectables = [False, False]
+        self.allWeapons = [
+            Pistol(self.gameEngine)
+        ]
+        self.unlockedWeapons = [
+            self.allWeapons[0]
+        ]
+        self.currentWeapon = 0
         
         self.currentState = self.State.NORMAL
         self.Keys = {"K_LCTRL": False, "K_LSHIFT": False}
@@ -290,4 +298,9 @@ class Player(Character):
         self.updatePlayerPosition(world, dt)
 
         camera.position += (self.position - camera.position) * 0.2
+        
+    def shootWeapons(self, mousePos:Vector2, currentMouseButttons, mouseDownEvents):
+        globalMousePos = self.gameEngine.camera.unTransformPoint(mousePos)
+        if mouseDownEvents[1]:
+            self.unlockedWeapons[self.currentWeapon].shootPrimary(self.position, globalMousePos - self.position)
         

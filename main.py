@@ -61,9 +61,7 @@ while engine.running:
         engine.player.renderSprite()
         engine.uiHandler.renderUi(engine.player, engine.screen, engine.screenSize)
         
-    collidingPoint = engine.world.isRayColliding(engine.player.position, Vector2(0, -1))
-    if not collidingPoint is None:
-        engine.world.renderPoint(engine.camera, engine.screen, (255, 0, 0), collidingPoint)
+        engine.player.shootWeapons(Vector2(pygame.mouse.get_pos()), None, mouseButtons)
     
 
     engine.camera.renderFPS(engine.clock, engine.screen)
