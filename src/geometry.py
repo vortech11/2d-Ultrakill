@@ -170,6 +170,41 @@ class Geometry:
         UB = (((p2.x - p1.x) * (p1.y - p3.y)) - ((p2.y - p1.y) * (p1.x - p3.x))) / denom
         
         return 0.0 <= UA <= 1.0 and 0.0 <= UB <= 1.0
+
+    # Big thanks to Basstabs for this algorithm
+    def rayLinesegIntersect(self, position: Vector2, ray: Vector2, start: Vector2, end: Vector2):
+        #Ensure the ray can be raycast
+        if ray.x == 0.0 and ray.y == 0.0:
+            return None
+            print("RAY IS ZERO! I DON'T WANT TO DO ERROR HANDLING SO GO TO THE rayLinesegIntersect FUNC,\
+                LAST TIME I CHECKED IT WAS ON LINE 175 IN THE geometry.py FILE!!!!")
+
+        rise = end.y - start.y
+        run = end.x - start.x
+
+        denominator = rise * ray.x - run * ray.y
+        if denominator == 0: #The ray and the segment are parallel, so there is no intersection to find
+            return None
+
+        segment_param = (location.y * ray.x + start.x * ray.y - location.x * ray.y - start.y * ray.x) / denominator
+        if segment_param < 0 or segment_param > 1.0: #The lines intersect outside the segment, so there is no intersection
+            return None
+
+        if ray.x == 0.0:
+            ray_param = (start.y - location.y + rise * segment_param) / ray.y
+        else:
+            ray_param = (start.x - location.x + run * segment_param) / ray.x
+
+        if ray_param < 0: #The opposite of the ray intersects the segment, not the ray itself
+            return None
+
+        return ray_param
+
+    def isRayColliding(self, position: Vector2, ray: Vector2):
+        lines = []
+        for rect in self.collisionGeometry["rect"]:
+            lines.extend([[point]])
+
     
     def isLinePolyColliding(self, p1: Vector2, p2: Vector2, poly: list[Vector2]):
         return any([self.isLineLineColliding(p1, p2, point, poly[(index + 1) % len(poly)]) for index, point in enumerate(poly)])
