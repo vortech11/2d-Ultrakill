@@ -62,6 +62,7 @@ while engine.running:
         engine.uiHandler.renderUi(engine.player, engine.screen, engine.screenSize)
         
         engine.player.shootWeapons(Vector2(pygame.mouse.get_pos()), None, mouseButtons)
+        engine.killDeadEnemies()
     
 
     engine.camera.renderFPS(engine.clock, engine.screen)

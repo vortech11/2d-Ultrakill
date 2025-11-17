@@ -180,8 +180,8 @@ class Geometry:
         return list
     
     def getLinesFromEnemies(self, list, enemies):
-        for enemy in enemies:
-            list.extend([[[point + enemy.position, enemy.hitbox[(index + 1) % (len(enemy.hitbox))] + enemy.position], enemy] for index, point in enumerate(enemy.hitbox)])
+        for enemyIndex, enemy in enumerate(enemies):
+            list.extend([[[point + enemy.position, enemy.hitbox[(index + 1) % (len(enemy.hitbox))] + enemy.position], enemyIndex] for index, point in enumerate(enemy.hitbox)])
         return list
     
     # Big thanks to Basstabs for this algorithm
@@ -237,7 +237,8 @@ class Geometry:
         return rect1[0].x < rect2[1].x and rect1[1].x > rect2[0].x and rect1[0].y < rect2[1].y and rect1[1].y > rect2[0].y
             
     def isRectColliding(self, inputRect):
-        #return any([pygame.Rect.colliderect(self.generateRect(inputRect), self.generateRect(rect["points"])) for rect in self.geometry["rect"]])              WTF is wrong with this???????
+        #WTF is wrong with this???????
+        #return any([pygame.Rect.colliderect(self.generateRect(inputRect), self.generateRect(rect["points"])) for rect in self.geometry["rect"]])
         return any([self.isRectRectColliding(inputRect, rect["points"]) for rect in self.collisionGeometry["rect"]])
 
     def isTriggerColliding(self, inputRect: list[Vector2]):

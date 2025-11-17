@@ -1,13 +1,13 @@
 
 
 
-def applyHitscanDamage(world, position, direction, damage, pierce=1):
-    collitions = world.isRayColliding(position, direction, pierce)
+def applyHitscanDamage(gameEngine, position, direction, damage, pierce=1):
+    collitions = gameEngine.world.isRayColliding(position, direction, pierce)
     if not collitions:
         return position + (direction * 100000)
     for collition in collitions:
         if not collition[1] is None:
-            collition[1].health -= damage
+            gameEngine.hurtEnemy(collition[1], damage)
     endPoint = collitions[-1][0]
     return endPoint
 
@@ -22,6 +22,6 @@ class Pistol(Weapon):
         super().__init__(gameEngine, 1, 1)
         
     def shootPrimary(self, position, direction):
-        endPoint = applyHitscanDamage(self.gameEngine.world, position, direction, self.baseDamage)
+        endPoint = applyHitscanDamage(self.gameEngine, position, direction, self.baseDamage)
         self.gameEngine.world.renderLine(self.gameEngine.camera, self.gameEngine.screen, (255, 255, 255), position, endPoint)
     

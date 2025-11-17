@@ -60,11 +60,18 @@ class GameEngine:
         self.uiHandler = UiHandler(self)
 
         self.enemies = []
-        
         self.images = self.loadImages()
         
         self.startLevel(startLevel)
+
+    def hurtEnemy(self, enemyIndex, damage):
+        self.enemies[enemyIndex].health -= damage
+        if self.enemies[enemyIndex].health <= 0:
+            self.enemies[enemyIndex] = None
         
+    def killDeadEnemies(self):
+        self.enemies = [enemy for enemy in self.enemies if not enemy is None]
+
     def tickWorld(self, dt):
         for enemy in self.enemies:
             enemy.move(dt)
