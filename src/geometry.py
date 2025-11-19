@@ -115,7 +115,7 @@ class Geometry:
     def renderDevInfo(self, camera, screen):
         for rect in self.fullGeometry["triggers"]:
             points = [camera.transformPoint(point) for point in rect["points"]]
-            draw.rect(screen, (235, 199, 19), pygame.Rect(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y))
+            self.gameEngine.drawRect(screen, (235, 199, 19), pygame.Rect(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y))
 
         for spawner in self.fullGeometry["enemySpawner"]:
             self.renderPoint(camera, screen, (255, 0, 0), spawner["position"])

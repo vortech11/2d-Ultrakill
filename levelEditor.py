@@ -122,7 +122,7 @@ class Editor():
                     self.pointData.append(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
                 if len(self.pointData) > 0:
                     pygame.draw.polygon(
-                        self.engine.screen, 
+                        self.engine.screenFrame, 
                         self.drawColor, 
                         self.engine.world.generateRectPolyPoints([
                             self.engine.camera.transformPoint(self.pointData[0]),
@@ -148,7 +148,7 @@ class Editor():
                     self.pointData.append(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
                 if len(self.pointData) == 1:
                     pygame.draw.polygon(
-                        self.engine.screen, 
+                        self.engine.screenFrame, 
                         self.drawColor, 
                         [
                             self.engine.camera.transformPoint(self.pointData[0]), 
@@ -158,7 +158,7 @@ class Editor():
                     )
                 if len(self.pointData) == 2:
                     pygame.draw.polygon(
-                        self.engine.screen, 
+                        self.engine.screenFrame, 
                         self.drawColor, 
                         [
                             self.engine.camera.transformPoint(self.pointData[0]), 
@@ -184,7 +184,7 @@ class Editor():
                     self.pointData.append(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
                 if len(self.pointData) > 0:
                     pygame.draw.polygon(
-                        self.engine.screen, 
+                        self.engine.screenFrame, 
                         (235, 199, 19), 
                         self.engine.world.generateRectPolyPoints([
                             self.engine.camera.transformPoint(self.pointData[0]),
@@ -252,7 +252,7 @@ class Editor():
         
     def displayMode(self):
         text_surface = DEBUG_FONT.render(f"{modes(editor.mode).name} {editor.displayText}", True, (255, 255, 255))
-        self.engine.screen.blit(text_surface, (10, 10))
+        self.engine.screenFrame.blit(text_surface, (10, 10))
 
 engine = GameEngine("2D Ultrakill Level Editor", screenSize, "level.json")
 editor = Editor(engine)
@@ -265,11 +265,9 @@ engine.player.airAccel = 450
 while engine.running:
     dt = engine.clock.tick(60) / 1000.0
     
-    engine.screen.fill((0, 0, 0))
+    engine.world.render(engine.camera, engine.screenFrame)
 
-    engine.world.render(engine.camera, engine.screen)
-
-    engine.world.renderDevInfo(engine.camera, engine.screen)
+    engine.world.renderDevInfo(engine.camera, engine.screenFrame)
 
     editor.userInput()
 
@@ -279,6 +277,7 @@ while engine.running:
 
     editor.displayMode()
 
-    pygame.display.update()
+    engine.renderScreen()
+
 
 engine.shutdown()

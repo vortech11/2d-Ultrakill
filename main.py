@@ -40,8 +40,6 @@ while engine.running:
 
     if engine.camera.zoom <= 0:
         engine.camera.zoom = 0
-
-    engine.screen.fill((0, 0, 0))
     
     if not engine.levelWin:
         engine.player.movePlayerDirection(dt, direction, engine.camera, engine.world)
@@ -54,18 +52,16 @@ while engine.running:
         continue
         
     if engine.currentLevel == "levelSelect.json":
-        engine.uiHandler.handleMainMenu(engine.screen, engine.screenSize, Vector2(pygame.mouse.get_pos()), mouseButtons)
+        engine.uiHandler.handleMainMenu(engine.screenFrame, engine.screenSize, Vector2(pygame.mouse.get_pos()), mouseButtons)
     else:
-        engine.world.render(engine.camera, engine.screen)
+        engine.world.render(engine.camera, engine.screenFrame)
         engine.renderEnemies()
-        engine.player.renderSprite()
-        engine.uiHandler.renderUi(engine.player, engine.screen, engine.screenSize)
-        
+        engine.player.renderSprite()        
         engine.player.shootWeapons(Vector2(pygame.mouse.get_pos()), None, mouseButtons)
         engine.killDeadEnemies()
+        engine.uiHandler.renderUi(engine.player, engine.screenFrame, engine.screenSize)
     
-
-    engine.camera.renderFPS(engine.clock, engine.screen)
-    pygame.display.update()
+    engine.camera.renderFPS(engine.clock, engine.screenFrame)
+    engine.renderScreen()
 
 engine.shutdown()

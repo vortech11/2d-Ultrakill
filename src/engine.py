@@ -40,12 +40,27 @@ class GameEngine:
     def startLevel(self, levelName):
         self.world.loadGeometryFile(levelName)
         self.player.restartLevel()
+
+    def drawRect(self, screen, color, rect: pygame.Rect):
+        tempSurface = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+        #pygame.draw.rect(tempSurface, color, rect)
+        tempSurface.fill(color)
+        self.screen.blit(tempSurface, (rect.x, rect.y))
+
+    def renderScreen(self):
+        self.screen.blit(self.screenFrame, (0, 0))
+        pygame.display.update()
+        self.screenFrame.fill((0, 0, 255))
+        self.screen.fill((255, 0, 0))
+
+
     
     def __init__(self, gameName="2D Ultrakill", screenSize=Vector2(800, 800), startLevel="levelSelect.json") -> None:
         self.screenSize = screenSize
         
         pygame.init()
         self.screen = pygame.display.set_mode(self.screenSize, vsync=1)
+        self.screenFrame = pygame.Surface(self.screenSize, pygame.SRCALPHA)
         pygame.display.set_caption(gameName)
         self.clock = pygame.time.Clock()
         self.running = True

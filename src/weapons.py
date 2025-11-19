@@ -23,5 +23,5 @@ class Pistol(Weapon):
         
     def shootPrimary(self, position, direction):
         endPoint = applyHitscanDamage(self.gameEngine, position, direction, self.baseDamage)
-        self.gameEngine.world.renderLine(self.gameEngine.camera, self.gameEngine.screen, (255, 255, 255), position, endPoint)
+        self.gameEngine.world.renderLine(self.gameEngine.camera, self.gameEngine.screenFrame, (255, 255, 255), position, endPoint)
     

@@ -28,11 +28,11 @@ class Character:
         ]
     
     def renderHitbox(self, color):
-        draw.polygon(self.gameEngine.screen, color, [self.gameEngine.camera.transformPoint(point) for point in self.getPolyBB()])
+        draw.polygon(self.gameEngine.screenFrame, color, [self.gameEngine.camera.transformPoint(point) for point in self.getPolyBB()])
         
     def renderSprite(self):
         imageData = self.gameEngine.images[self.imageDir]["Goofball.png"]
-        self.gameEngine.screen.blit(transform.flip(transform.scale_by(imageData["image"], imageData["scale"] * self.gameEngine.camera.zoom), bool(self.facing), 0), self.gameEngine.camera.transformPoint(self.position + imageData["center"]))
+        self.gameEngine.screenFrame.blit(transform.flip(transform.scale_by(imageData["image"], imageData["scale"] * self.gameEngine.camera.zoom), bool(self.facing), 0), self.gameEngine.camera.transformPoint(self.position + imageData["center"]))
         
     def isAABBColliding(self, world):
         rectColliding = world.isRectColliding(self.getRectBB())
