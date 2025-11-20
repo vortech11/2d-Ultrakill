@@ -19,21 +19,21 @@ class UiHandler:
         return pygame.Rect(position.x, position.y, (endPosition.x) * value / total, endPosition.y)
 
     def renderBar(self, screen, color, value, total, position: Vector2, relativeEnd: Vector2):
-        self.gameEngine.drawRect(screen, color, self.getBarRect(value, total, position, relativeEnd))
+        pygame.draw.rect(screen, color, self.getBarRect(value, total, position, relativeEnd))
         
     def renderPlayerUi(self, player, screen, screenSize):
 
         playerWigitStart: Vector2 = Vector2(50, screenSize.y - 150)
         playerWigitEnd: Vector2 = Vector2(200, 100)
 
-        self.gameEngine.drawRect(screen, (50, 50, 50), pygame.Rect(playerWigitStart.x, playerWigitStart.y, playerWigitEnd.x, playerWigitEnd.y))
+        pygame.draw.rect(screen, (50, 50, 50), pygame.Rect(playerWigitStart.x, playerWigitStart.y, playerWigitEnd.x, playerWigitEnd.y))
 
         staminaBarPadding = Vector2(15, 15)
         staminaBarHight = 20
 
         healthbarVerticalPad = 10
         
-        self.gameEngine.drawRect(screen, (25, 25, 25),
+        pygame.draw.rect(screen, (25, 25, 25),
             pygame.Rect(playerWigitStart.x + staminaBarPadding.x,
                         playerWigitStart.y + playerWigitEnd.y - staminaBarPadding.y - staminaBarHight,
                         playerWigitEnd.x - staminaBarPadding.x * 2,
@@ -44,19 +44,19 @@ class UiHandler:
             Vector2(playerWigitEnd.x - staminaBarPadding.x * 2, staminaBarHight)
         )
 
-        self.gameEngine.drawRect(screen, (50, 50, 50),
+        pygame.draw.rect(screen, (50, 50, 50),
             pygame.Rect(playerWigitStart.x + staminaBarPadding.x + (playerWigitEnd.x - staminaBarPadding.x * 2) * 33.33 / 100,
                         playerWigitStart.y + playerWigitEnd.y - staminaBarPadding.y - staminaBarHight,
                         4,
                         staminaBarHight))
         
-        self.gameEngine.drawRect(screen, (50, 50, 50),
+        pygame.draw.rect(screen, (50, 50, 50),
             pygame.Rect(playerWigitStart.x + staminaBarPadding.x + (playerWigitEnd.x - staminaBarPadding.x * 2) * 66.66 / 100,
                         playerWigitStart.y + playerWigitEnd.y - staminaBarPadding.y - staminaBarHight,
                         4,
                         staminaBarHight))
         
-        self.gameEngine.drawRect(screen, (25, 25, 25),
+        pygame.draw.rect(screen, (25, 25, 25),
             pygame.Rect(playerWigitStart.x + staminaBarPadding.x,
                         playerWigitStart.y + playerWigitEnd.y - staminaBarPadding.y - staminaBarHight * 2 - healthbarVerticalPad,
                         playerWigitEnd.x - staminaBarPadding.x * 2,

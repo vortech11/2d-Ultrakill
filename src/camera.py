@@ -23,6 +23,9 @@ class Camera:
         transformed.rotate_rad_ip(-self.rotation)
         transformed += self.position
         return transformed
+
+    def transformPolyToSurfaceSpace(self, points: list[Vector2], minX, minY):
+        return [Vector2(point.x - minX, point.y - minY) for point in points]
     
     def getRectPoints(self, center: Vector2, apothem: float) -> list[Vector2]:
         return [

@@ -106,11 +106,11 @@ class Geometry:
         
     def renderRects(self, rects, camera, screen):
         for rect in rects:
-            draw.polygon(screen, rect["color"], [camera.transformPoint(point) for point in rect["renderPoints"]])
+            self.gameEngine.drawPoly(screen, rect["color"], [camera.transformPoint(point) for point in rect["renderPoints"]])
             
     def renderPoly(self, polys, camera, screen):
         for poly in polys:
-            draw.polygon(screen, poly["color"], [camera.transformPoint(point) for point in poly["points"]])
+            self.gameEngine.drawPoly(screen, poly["color"], [camera.transformPoint(point) for point in poly["points"]])
 
     def renderDevInfo(self, camera, screen):
         for rect in self.fullGeometry["triggers"]:

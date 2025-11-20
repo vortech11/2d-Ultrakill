@@ -47,11 +47,24 @@ class GameEngine:
         tempSurface.fill(color)
         self.screen.blit(tempSurface, (rect.x, rect.y))
 
+    def drawPoly(self, screen, color, points: list[Vector2]):
+        x_values = [point.x for point in points]
+        y_values = [point.y for point in points]
+
+        minX = min(x_values)
+        maxX = max(x_values)
+        minY = min(y_values)
+        maxY = max(y_values)
+
+        tempSurface = pygame.Surface((maxX - minX, maxY - minY), pygame.SRCALPHA)
+        pygame.draw.polygon(tempSurface, color, self.camera.transformPolyToSurfaceSpace(points, minX, minY), self.renderBoarderSize)
+        screen.blit(tempSurface, (minX, minY))
+
     def renderScreen(self):
         self.screen.blit(self.screenFrame, (0, 0))
         pygame.display.update()
-        self.screenFrame.fill((0, 0, 255))
-        self.screen.fill((255, 0, 0))
+        self.screenFrame.fill((0, 0, 0))
+        self.screen.fill((0, 0, 0))
 
 
     
@@ -64,6 +77,8 @@ class GameEngine:
         pygame.display.set_caption(gameName)
         self.clock = pygame.time.Clock()
         self.running = True
+
+        self.renderBoarderSize = 0
         
         self.currentLevel = startLevel
         self.levelWin = False
