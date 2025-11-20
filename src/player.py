@@ -242,7 +242,7 @@ class Player(Character):
             case self.State.SLIDE:
                 self.velosity.x = copysign(self.slideSpeed, self.velosity.x)
                 self.hitbox = self.slidingHitbox
-                self.facing = copysign(1, self.velosity.x)
+                self.facing = clamp(0, copysign(1, self.velosity.x), 1)
             case self.State.DASH:
                 self.velosity = Vector2(copysign(self.dashSpeed, self.velosity.x), 0)
                 self.dashTime = max(self.dashTime - dt, 0)
