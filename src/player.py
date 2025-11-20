@@ -230,7 +230,8 @@ class Player(Character):
 
         self.velosity.y += self.gravity * dt
 
-        self.facing = clamp(0, direction.x, 1)
+        if not direction.x == 0: 
+            self.facing = clamp(0, direction.x, 1)
             
         match self.currentState:
             case self.State.SLAM:

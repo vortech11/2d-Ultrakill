@@ -43,7 +43,6 @@ class GameEngine:
 
     def drawRect(self, screen, color, rect: pygame.Rect):
         tempSurface = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
-        #pygame.draw.rect(tempSurface, color, rect)
         tempSurface.fill(color)
         self.screen.blit(tempSurface, (rect.x, rect.y))
 
@@ -65,8 +64,6 @@ class GameEngine:
         pygame.display.update()
         self.screenFrame.fill((0, 0, 0))
         self.screen.fill((0, 0, 0))
-
-
     
     def __init__(self, gameName="2D Ultrakill", screenSize=Vector2(800, 800), startLevel="levelSelect.json") -> None:
         self.screenSize = screenSize

@@ -121,7 +121,7 @@ class Editor():
                 if mouseKeys[1]:
                     self.pointData.append(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
                 if len(self.pointData) > 0:
-                    pygame.draw.polygon(
+                    engine.drawPoly(
                         self.engine.screenFrame, 
                         self.drawColor, 
                         self.engine.world.generateRectPolyPoints([
@@ -147,7 +147,7 @@ class Editor():
                 if mouseKeys[1]:
                     self.pointData.append(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
                 if len(self.pointData) == 1:
-                    pygame.draw.polygon(
+                    engine.drawPoly(
                         self.engine.screenFrame, 
                         self.drawColor, 
                         [
@@ -157,7 +157,7 @@ class Editor():
                         ]
                     )
                 if len(self.pointData) == 2:
-                    pygame.draw.polygon(
+                    engine.drawPoly(
                         self.engine.screenFrame, 
                         self.drawColor, 
                         [
@@ -183,7 +183,7 @@ class Editor():
                 if mouseKeys[1]:
                     self.pointData.append(self.roundVector(self.engine.camera.unTransformPoint(mousePos)))
                 if len(self.pointData) > 0:
-                    pygame.draw.polygon(
+                    engine.drawPoly(
                         self.engine.screenFrame, 
                         (235, 199, 19), 
                         self.engine.world.generateRectPolyPoints([
