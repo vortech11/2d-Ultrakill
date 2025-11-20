@@ -75,6 +75,9 @@ class GameEngine:
         self.clock = pygame.time.Clock()
         self.running = True
 
+        self.dt = 0
+        self.speed = 0.5
+
         self.renderBoarderSize = 0
         
         self.currentLevel = startLevel
@@ -90,6 +93,9 @@ class GameEngine:
         self.images = self.loadImages()
         
         self.startLevel(startLevel)
+
+    def updateDeltaTime(self):
+        self.dt = self.clock.tick(60) / 1000.0 * self.speed
 
     def hurtEnemy(self, enemyIndex, damage):
         self.enemies[enemyIndex].health -= damage

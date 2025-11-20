@@ -110,7 +110,7 @@ class Editor():
         direction.x = keys[pygame.K_d] - keys[pygame.K_a]
         direction.y = keys[pygame.K_s] - keys[pygame.K_w]
 
-        self.engine.camera.zoom += (keys[pygame.K_UP] - keys[pygame.K_DOWN]) * 2 * dt * self.engine.camera.zoom
+        self.engine.camera.zoom += (keys[pygame.K_UP] - keys[pygame.K_DOWN]) * 2 * engine.dt * self.engine.camera.zoom
 
         if self.engine.camera.zoom <= 0:
             self.engine.camera.zoom = 0
@@ -248,7 +248,7 @@ class Editor():
                 self.displayText = ""
                 
 
-        self.engine.player.movePlayerDirection(dt, direction, self.engine.camera, self.engine.world)
+        self.engine.player.movePlayerDirection(engine.dt, direction, self.engine.camera, self.engine.world)
         
     def displayMode(self):
         text_surface = DEBUG_FONT.render(f"{modes(editor.mode).name} {editor.displayText}", True, (255, 255, 255))
@@ -257,13 +257,11 @@ class Editor():
 engine = GameEngine("2D Ultrakill Level Editor", screenSize, "level.json")
 editor = Editor(engine)
 
-dt = 1
-
 engine.player.currentState = engine.player.State.NOCLIP
 engine.player.airAccel = 450
 
 while engine.running:
-    dt = engine.clock.tick(60) / 1000.0
+    engine.dt = engine.clock.tick(60) / 1000.0
     
     engine.world.render(engine.camera, engine.screenFrame)
 

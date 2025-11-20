@@ -26,7 +26,7 @@ while engine.running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouseButtons = [True if event.button == index else False for index in range(3)]
 
-    dt = engine.clock.tick(60) / 1000.0
+    engine.updateDeltaTime()
 
     keys = pygame.key.get_pressed()
 
@@ -35,15 +35,15 @@ while engine.running:
     direction.y = keys[pygame.K_w] - keys[pygame.K_s]
 
 
-    engine.camera.rotation += (keys[pygame.K_LEFT] - keys[pygame.K_RIGHT]) * 1 * dt
-    engine.camera.zoom += (keys[pygame.K_UP] - keys[pygame.K_DOWN]) * 2 * dt * engine.camera.zoom
+    engine.camera.rotation += (keys[pygame.K_LEFT] - keys[pygame.K_RIGHT]) * 1 * engine.dt
+    engine.camera.zoom += (keys[pygame.K_UP] - keys[pygame.K_DOWN]) * 2 * engine.dt * engine.camera.zoom
 
     if engine.camera.zoom <= 0:
         engine.camera.zoom = 0
     
     if not engine.levelWin:
-        engine.player.movePlayerDirection(dt, direction, engine.camera, engine.world)
-        engine.tickWorld(dt)
+        engine.player.movePlayerDirection(engine.dt, direction, engine.camera, engine.world)
+        engine.tickWorld(engine.dt)
     elif engine.player.jumpping:
         engine.world.loadGeometryFile(engine.levelToBeLoaded)
         engine.player.restartLevel()
