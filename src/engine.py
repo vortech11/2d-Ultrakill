@@ -8,8 +8,14 @@ import pygame
 from pygame import Vector2
 
 from pathlib import Path
-
+from enum import Enum
 import json
+
+class slowState(Enum):
+    normal = 0
+    slow = 1
+    wait = 2
+    speedup = 3
 
 class GameEngine:
     def loadImages(self):
@@ -64,6 +70,43 @@ class GameEngine:
         pygame.display.update()
         self.screenFrame.fill((0, 0, 0))
         self.screen.fill((0, 0, 0))
+
+    def updateGameSpeed(self):
+        if self.currentSlowState == slowState.normal:
+            return
+
+        worldDt = self.dt / self.speed
+        self.currentSlowValue += worldDt
+
+        match self.currentSlowState:
+            case slowState.slow:
+                self.speed -= (self.speed - self.gameSlowInfo["duration"][0]) * self.gameSlowInfo["attack"][0]
+                if self.currentSlowValue >= self.gameSlowInfo["attack"][1]:
+                    self.currentSlowState = slowState.wait
+                    self.currentSlowValue = 0
+            case slowState.wait:
+                self.speed = self.gameSlowInfo["duration"][0]
+                if self.currentSlowValue >= self.gameSlowInfo["duration"][1]:
+                    self.currentSlowState = slowState.speedup
+                    self.currentSlowValue = 0
+            case slowState.speedup:
+                self.speed += (1 - self.speed) * self.gameSlowInfo["resume"][0]
+                if self.currentSlowValue >= self.gameSlowInfo["resume"][1]:
+                    self.currentSlowState = slowState.normal
+                    self.speed = 1
+                    self.currentSlowValue = 0
+
+        return
+
+    def slowdownTime(self, attack: tuple, duration: tuple, resume: tuple):
+        self.gameSlowInfo = {
+            "attack": attack,
+            "duration": duration,
+            "resume": resume
+        }
+
+        self.currentSlowValue = 0
+        self.currentSlowState = slowState.slow
     
     def __init__(self, gameName="2D Ultrakill", screenSize=Vector2(800, 800), startLevel="levelSelect.json") -> None:
         self.screenSize = screenSize
@@ -76,7 +119,10 @@ class GameEngine:
         self.running = True
 
         self.dt = 0
-        self.speed = 0.5
+        self.speed = 1
+        self.gameSlowInfo = []
+        self.currentSlowState = slowState.normal
+        self.currentSlowValue = 0
 
         self.renderBoarderSize = 0
         

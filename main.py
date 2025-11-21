@@ -14,6 +14,7 @@ while engine.running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 engine.player.jumpping = True
+                engine.slowdownTime((.1, 2), (.2, 0), (.05, 2))
             if event.key == pygame.K_LCTRL:
                 engine.player.Keys["K_LCTRL"] = True
             if event.key == pygame.K_LSHIFT:
@@ -62,6 +63,7 @@ while engine.running:
         engine.uiHandler.renderUi(engine.player, engine.screenFrame, engine.screenSize)
     
     engine.camera.renderFPS(engine.clock, engine.screenFrame)
+    engine.updateGameSpeed()
     engine.renderScreen()
 
 engine.shutdown()
