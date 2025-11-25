@@ -30,6 +30,7 @@ class colors(Enum):
     yellow = (255, 194, 13)
     lightGreen = (0, 255, 0)
     lightBlue = (36, 168, 224)
+    levelEnd = (161, 42, 34)
 
 colorsList = [color.value for color in colors]
 
@@ -236,6 +237,8 @@ class Editor():
                     self.drawColor = pygame.Color(colorsList[6])
                 if keys[pygame.K_8]:
                     self.drawColor = pygame.Color(colorsList[7])
+                if keys[pygame.K_9]:
+                    self.drawColor = pygame.Color(colorsList[8])
             case modes.setRenderLayer:
                 self.displayText = f"{self.renderLayer}"
                 if keys[pygame.K_0]:
@@ -254,7 +257,7 @@ class Editor():
         text_surface = DEBUG_FONT.render(f"{modes(editor.mode).name} {editor.displayText}", True, (255, 255, 255))
         self.engine.screenFrame.blit(text_surface, (10, 10))
 
-engine = GameEngine("2D Ultrakill Level Editor", screenSize, "level.json")
+engine = GameEngine("2D Ultrakill Level Editor", screenSize, "prelude.json")
 editor = Editor(engine)
 
 engine.player.currentState = engine.player.State.NOCLIP

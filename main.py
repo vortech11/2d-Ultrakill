@@ -14,7 +14,6 @@ while engine.running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 engine.player.jumpping = True
-                engine.slowdownTime((.1, 2), (.2, 0), (.05, 2))
             if event.key == pygame.K_LCTRL:
                 engine.player.Keys["K_LCTRL"] = True
             if event.key == pygame.K_LSHIFT:

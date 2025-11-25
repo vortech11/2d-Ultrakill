@@ -97,6 +97,9 @@ class Geometry:
         
         with open(self.currentFilePath, "w") as file:
             json.dump(outFullGeometry, file)
+
+    def rectPointsToPoly(self, points):
+        return [points[0], Vector2(points[1].x, points[0].y), points[1], Vector2(points[0].x, points[1].y)]
             
     def renderPoint(self, camera, screen, color, point, size=10):
         draw.circle(screen, color, camera.transformPoint(point), size)
@@ -115,7 +118,7 @@ class Geometry:
     def renderDevInfo(self, camera, screen):
         for rect in self.fullGeometry["triggers"]:
             points = [camera.transformPoint(point) for point in rect["points"]]
-            self.gameEngine.drawRect(screen, (235, 199, 19), pygame.Rect(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y))
+            self.gameEngine.drawPoly(screen, (235, 199, 19), self.rectPointsToPoly(points))
 
         for spawner in self.fullGeometry["enemySpawner"]:
             self.renderPoint(camera, screen, (255, 0, 0), spawner["position"])
@@ -128,8 +131,8 @@ class Geometry:
         self.renderRects(self.collisionGeometry["rect"], camera, screen)
         self.renderPoly(self.collisionGeometry["tri"], camera, screen)
         
-    def generateRect(self, pointList: list[Vector2]):
-        return pygame.Rect(pointList[0].x, pointList[0].y, pointList[1].x, pointList[1].y)
+    #def generateRect(self, pointList: list[Vector2]):
+    #    return pygame.Rect(pointList[0].x, pointList[0].y, pointList[1].x, pointList[1].y)
         
     def isPointRectColliding(self, point: Vector2, rect: list[Vector2]):
         return (rect[0].x < point.x < rect[1].x) and (rect[0].y < point.y < rect[1].y)
