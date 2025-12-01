@@ -9,6 +9,34 @@
             "triggerParentIndex": 4
         }
     ],
+    "entities": [
+        {
+            "type": "door",
+            "triggerParentIndex": 0,
+            "speed": 10,
+            "moving": false,
+            "start": [
+                0,
+                0
+            ],
+            "end": [
+                100,
+                100
+            ],
+            "points": [
+                10,
+                10,
+                1000,
+                1000
+            ],
+            "tween": 0,
+            "color": [
+                25,
+                25,
+                25
+            ]
+        }
+    ],
     "triggers": [
         {
             "points": [
