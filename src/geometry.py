@@ -59,10 +59,12 @@ class Geometry:
         self.unpackRectTriData(self.renderGeometry)
 
         for index, rect in enumerate(self.entityGeometry):
-            points = self.generateRectPolyPoints(rect["points"])
             self.entityGeometry[index]["points"] = self.generateRectVecorPoints(rect["points"])
-            self.entityGeometry[index]["renderPoints"] = points
+            self.entityGeometry[index]["renderPoints"] = self.generateRectPolyPoints(rect["points"])
             self.entityGeometry[index]["position"] = Vector2(0, 0)
+            if self.entityGeometry[index]["type"] == "door":
+                self.entityGeometry[index]["start"] = Vector2(self.entityGeometry[index]["start"])
+                self.entityGeometry[index]["end"] = Vector2(self.entityGeometry[index]["end"])
             
         for index, rect in enumerate(self.fullGeometry["triggers"]):
             points = self.generateRectVecorPoints(rect["points"])
@@ -137,7 +139,14 @@ class Geometry:
             match entity["type"]:
                 case "door":
                     if entity["moving"]:
-                        ...
+                        distance = entity["position"].distance_to(entity["end"])
+                        direction = entity["end"] - entity["position"]
+                        if not direction.length() == 0:
+                            direction.normalize_ip()
+                            direction *= min(entity["speed"], distance)
+                            entity["position"] += direction
+                        else:
+                            entity["moving"] = False
 
     def renderEntities(self, entities, camera, screen):
         for entity in entities:
@@ -158,7 +167,7 @@ class Geometry:
         self.renderPoly(self.renderGeometry["tri"], camera, screen)
         self.renderRects(self.collisionGeometry["rect"], camera, screen)
         self.renderPoly(self.collisionGeometry["tri"], camera, screen)
-        self.renderRects(self.entityGeometry, camera, screen)
+        self.renderEntities(self.entityGeometry, camera, screen)
         
     #def generateRect(self, pointList: list[Vector2]):
     #    return pygame.Rect(pointList[0].x, pointList[0].y, pointList[1].x, pointList[1].y)

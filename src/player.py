@@ -184,6 +184,7 @@ class Player(Character):
                                     self.powerupSpeed = trigger["perameters"][1]
                         case "spawnEnemies":
                             self.gameEngine.spawnTriggerEnemies(trigger["perameters"][0])
+                            self.gameEngine.triggerEntities(trigger["perameters"][0])
 
                 if trigger["triggerOnce"]:
                     trigger["active"] = False

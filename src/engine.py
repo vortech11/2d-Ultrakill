@@ -32,6 +32,11 @@ class GameEngine:
     def resetTriggers(self):
         for trigger in self.world.fullGeometry["triggers"]:
             trigger["active"] = True
+
+    def triggerEntities(self, triggerIndex):
+        for entity in self.world.entityGeometry:
+            if entity["triggerParentIndex"] == triggerIndex:
+                entity["moving"] = True
             
     def spawnTriggerEnemies(self, triggerIndex):
         for enemyTrigger in self.world.fullGeometry["enemySpawner"]:
@@ -152,6 +157,7 @@ class GameEngine:
         self.enemies = [enemy for enemy in self.enemies if not enemy is None]
 
     def tickWorld(self, dt):
+        self.world.updateEntityPositions()
         for enemy in self.enemies:
             enemy.move(dt)
 

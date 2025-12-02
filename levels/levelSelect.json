@@ -21,6 +21,7 @@
         "rect": [],
         "tri": []
     },
+    "entities": [],
     "enemySpawner": [],
     "triggers": [],
     "player": {

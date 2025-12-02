@@ -12,16 +12,16 @@
     "entities": [
         {
             "type": "door",
-            "triggerParentIndex": 0,
-            "speed": 10,
+            "triggerParentIndex": 4,
+            "speed": 100,
             "moving": false,
             "start": [
                 0,
                 0
             ],
             "end": [
-                100,
-                100
+                1000,
+                1000
             ],
             "points": [
                 10,
