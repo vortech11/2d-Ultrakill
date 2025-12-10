@@ -37,7 +37,8 @@ class Character:
     def isAABBColliding(self, world):
         rectColliding = world.isRectColliding(self.getRectBB())
         polyColliding = world.isPolyColliding(self.getPolyBB())
-        return [rectColliding, polyColliding]
+        entityColliding = world.isRectCollidingWithEntity(self.getRectBB())
+        return [rectColliding, polyColliding, entityColliding]
         
 class Filth(Character):
     def __init__(self, gameEngine, startPos: Vector2):

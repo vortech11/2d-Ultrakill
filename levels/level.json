@@ -12,12 +12,12 @@
     "entities": [
         {
             "type": "door",
-            "triggerParentIndex": 4,
+            "triggerParentIndex": 5,
             "speed": 100,
             "moving": false,
             "start": [
                 0,
-                0
+                200
             ],
             "end": [
                 1000,
@@ -45,9 +45,14 @@
                 3010.0,
                 300.0
             ],
-            "func": "hurt",
+            "funcs": [
+                "hurt"
+            ],
+            "onEvent": "playerEnter",
             "perameters": [
-                1
+                [
+                    1
+                ]
             ],
             "triggerOnce": false,
             "active": true
@@ -59,9 +64,14 @@
                 -780.0,
                 290.0
             ],
-            "func": "collectable",
+            "funcs": [
+                "collectable"
+            ],
+            "onEvent": "playerEnter",
             "perameters": [
-                1
+                [
+                    1
+                ]
             ],
             "triggerOnce": true,
             "active": true
@@ -73,9 +83,14 @@
                 -1740.0,
                 290.0
             ],
-            "func": "levelEnd",
+            "funcs": [
+                "levelEnd"
+            ],
+            "onEvent": "playerEnter",
             "perameters": [
-                "level2.json"
+                [
+                    "level2.json"
+                ]
             ],
             "triggerOnce": false,
             "active": true
@@ -87,12 +102,40 @@
                 1470.0,
                 300.0
             ],
-            "func": "spawnEnemies",
+            "funcs": [
+                "spawnEnemies",
+                "activateTrigger"
+            ],
+            "onEvent": "playerEnter",
             "perameters": [
-                4
+                [
+                    4
+                ],
+                [
+                    4
+                ]
             ],
             "triggerOnce": true,
             "active": true
+        },
+        {
+            "points": [
+                1380.0,
+                50.0,
+                1470.0,
+                300.0
+            ],
+            "funcs": [
+                "move"
+            ],
+            "onEvent": "deadEnemies",
+            "perameters": [
+                [
+                    5
+                ]
+            ],
+            "triggerOnce": true,
+            "active": false
         }
     ],
     "player": {

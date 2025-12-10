@@ -126,7 +126,8 @@ class Player(Character):
         
     def updatePlayerPosition(self, world, dt):
         self.position.x += self.velosity.x * dt
-        if self.isAABBColliding(world)[1]:
+        collision = self.isAABBColliding(world)
+        if collision[1]:
             stepup = int(abs(self.stepup * self.velosity.x * dt) + 1)
             #print(stepup)
             for x in range(stepup):
@@ -143,7 +144,7 @@ class Player(Character):
                         self.currentState = self.State.NORMAL
                         self.Keys["K_LCTRL"] = False
                     break
-        elif self.isAABBColliding(world)[0]:
+        elif collision[0] or collision[2]:
             for x in range(self.moveSubDiv[0]):
                 self.position.x -= self.velosity.x / self.moveSubDiv[0] * dt
                 if not any(self.isAABBColliding(world)):
@@ -164,30 +165,37 @@ class Player(Character):
             self.slamCoyoteTime = max(self.slamCoyoteTime -1, 0)
             self.velosity.y = 0
 
+    def handleTrigger(self, trigger):
+        if trigger["active"]:
+            for index, func in enumerate(trigger["funcs"]):
+                match func:
+                    case "hurt":
+                        self.health -= trigger["perameters"][index][0]
+                    case "levelEnd":
+                        if any(self.collectables):
+                            self.gameEngine.levelWin = True
+                            self.gameEngine.levelToBeLoaded = trigger["perameters"][index][0]
+                    case "collectable":
+                        self.collectables[trigger["perameters"][index][0]] = True
+                    case "powerup":
+                        match trigger["perameters"][0]:
+                            case "speed":
+                                self.powerupSpeed = trigger["perameters"][index][1]
+                    case "spawnEnemies":
+                        self.gameEngine.spawnTriggerEnemies(trigger["perameters"][index][0])
+                    case "activateTrigger":
+                        self.gameEngine.world.fullGeometry["triggers"][trigger["perameters"][index][0]]["active"] = True
+                    case "move":
+                        self.gameEngine.triggerEntities(trigger["perameters"][index][0])
+
+        if trigger["triggerOnce"]:
+            trigger["active"] = False
+
     def handleTriggers(self, world):
         collidingTriggers = world.isTriggerColliding(self.getRectBB())
         if any(collidingTriggers):
             for trigger in collidingTriggers:
-                if trigger["active"]:
-                    match trigger["func"]:
-                        case "hurt":
-                            self.health -= trigger["perameters"][0]
-                        case "levelEnd":
-                            if any(self.collectables):
-                                self.gameEngine.levelWin = True
-                                self.gameEngine.levelToBeLoaded = trigger["perameters"][0]
-                        case "collectable":
-                            self.collectables[trigger["perameters"][0]] = True
-                        case "powerup":
-                            match trigger["perameters"][0]:
-                                case "speed":
-                                    self.powerupSpeed = trigger["perameters"][1]
-                        case "spawnEnemies":
-                            self.gameEngine.spawnTriggerEnemies(trigger["perameters"][0])
-                            self.gameEngine.triggerEntities(trigger["perameters"][0])
-
-                if trigger["triggerOnce"]:
-                    trigger["active"] = False
+                self.handleTrigger(trigger)
                                 
     def handleDamage(self):
         if not self.currentState == self.State.DASH:
@@ -293,7 +301,7 @@ class Player(Character):
                     self.wallJumps -= 1
             self.jumpping = False
 
-        self.handleTriggers(world)
+        #self.handleTriggers(world)
         
         self.handleDamage()
 

@@ -152,11 +152,27 @@ class GameEngine:
         self.enemies[enemyIndex].health -= damage
         if self.enemies[enemyIndex].health <= 0:
             self.enemies[enemyIndex] = None
+
+    def tickTriggers(self):
+        for trigger in self.world.fullGeometry["triggers"]:
+            if not trigger["active"]:
+                print(trigger)
+                continue
+            match trigger["onEvent"]:
+                case "playerEnter":
+                    if self.world.isRectRectColliding(self.player.getRectBB(), trigger["points"]):
+                        self.player.handleTrigger(trigger)
+                case "deadEnemies":
+                    if len(self.enemies) == 0:
+                        self.player.handleTrigger(trigger)
+            
+            
         
     def killDeadEnemies(self):
         self.enemies = [enemy for enemy in self.enemies if not enemy is None]
 
     def tickWorld(self, dt):
+        self.tickTriggers()
         self.world.updateEntityPositions()
         for enemy in self.enemies:
             enemy.move(dt)

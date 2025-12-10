@@ -61,10 +61,13 @@ class Geometry:
         for index, rect in enumerate(self.entityGeometry):
             self.entityGeometry[index]["points"] = self.generateRectVecorPoints(rect["points"])
             self.entityGeometry[index]["renderPoints"] = self.generateRectPolyPoints(rect["points"])
-            self.entityGeometry[index]["position"] = Vector2(0, 0)
             if self.entityGeometry[index]["type"] == "door":
                 self.entityGeometry[index]["start"] = Vector2(self.entityGeometry[index]["start"])
                 self.entityGeometry[index]["end"] = Vector2(self.entityGeometry[index]["end"])
+                self.entityGeometry[index]["position"] = self.entityGeometry[index]["start"]
+            else:
+                self.entityGeometry[index]["position"] = Vector2(0, 0)
+
             
         for index, rect in enumerate(self.fullGeometry["triggers"]):
             points = self.generateRectVecorPoints(rect["points"])
@@ -224,6 +227,11 @@ class Geometry:
         for enemyIndex, enemy in enumerate(enemies):
             list.extend([[[point + enemy.position, enemy.hitbox[(index + 1) % (len(enemy.hitbox))] + enemy.position], enemyIndex] for index, point in enumerate(enemy.hitbox)])
         return list
+
+    def getLinesFromEntities(self, list):
+        for entity in self.entityGeometry:
+            list.extend([[[point + entity["position"], entity["renderPoints"][(index + 1) % (len(entity["renderPoints"]))] + entity["position"]], None] for index, point in enumerate(entity["renderPoints"])])
+        return list
     
     # Big thanks to Basstabs for this algorithm
     def rayLinesegIntersect(self, position: Vector2, ray: Vector2, start: Vector2, end: Vector2):
@@ -253,6 +261,7 @@ class Geometry:
         lines = []
         self.getLinesFromObjects(lines, self.collisionGeometry["rect"], "renderPoints")
         self.getLinesFromObjects(lines, self.collisionGeometry["tri"])
+        self.getLinesFromEntities(lines)
         self.getLinesFromEnemies(lines, self.gameEngine.enemies)
         contacts = [[self.rayLinesegIntersect(position, ray, line[0][0], line[0][1]), line[1]] for line in lines]
         contacts = [num for num in contacts if not num[0] == None]
@@ -276,6 +285,9 @@ class Geometry:
     
     def isRectRectColliding(self, rect1: list[Vector2], rect2: list[Vector2]):
         return rect1[0].x < rect2[1].x and rect1[1].x > rect2[0].x and rect1[0].y < rect2[1].y and rect1[1].y > rect2[0].y
+
+    def isRectCollidingWithEntity(self, inputRect):
+        return any([self.isRectRectColliding(inputRect, [point + entity["position"] for point in entity["points"]]) for entity in self.entityGeometry])
             
     def isRectColliding(self, inputRect):
         #WTF is wrong with this???????
