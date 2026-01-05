@@ -7,9 +7,6 @@ from math import sqrt, copysign
 
 from enum import Enum
 
-def clamp(minimum, x, maximum):
-    return max(minimum, min(x, maximum))
-
 def same_sign(a, b):
     if (a > 0 and b > 0) or \
        (a < 0 and b < 0) or \
@@ -50,9 +47,7 @@ class Player(Character):
         self.currentState = self.State.NORMAL
         self.Keys = {"K_LCTRL": False, "K_LSHIFT": False}
         self.jumpping = False
-        
-        self.stepup = 1
-        
+                
         self.airAccel = 7500
         self.maxSpeed = 750
         self.airResistance = 1
@@ -75,7 +70,6 @@ class Player(Character):
         self.dashTime = 0
         self.slamCoyoteTime = 0
         self.startSlam = 0
-        self.grounded = 0
         self.walled = False
         self.closeGrounded = False
         
@@ -240,7 +234,7 @@ class Player(Character):
         self.velosity.y += self.gravity * dt
 
         if not direction.x == 0: 
-            self.facing = clamp(0, direction.x, 1)
+            self.facing = self.clamp(0, direction.x, 1)
             
         match self.currentState:
             case self.State.SLAM:
@@ -251,13 +245,13 @@ class Player(Character):
             case self.State.SLIDE:
                 self.velosity.x = copysign(self.slideSpeed, self.velosity.x)
                 self.hitbox = self.slidingHitbox
-                self.facing = clamp(0, copysign(1, self.velosity.x), 1)
+                self.facing = self.clamp(0, copysign(1, self.velosity.x), 1)
             case self.State.DASH:
                 self.velosity = Vector2(copysign(self.dashSpeed, self.velosity.x), 0)
                 self.dashTime = max(self.dashTime - dt, 0)
                 if self.dashTime == 0:
                     self.currentState = self.State.NORMAL
-                    self.velosity.x = clamp(0, copysign(self.maxSpeed, self.velosity.x), 1)
+                    self.velosity.x = self.clamp(0, copysign(self.maxSpeed, self.velosity.x), 1)
             case self.State.NORMAL:
                 self.hitbox = self.normalHitbox
                 if self.grounded > 0:

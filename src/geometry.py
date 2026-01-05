@@ -4,6 +4,8 @@ from pygame import Vector2
 from pygame import draw
 import pygame
 
+import src.enemies
+
 from copy import deepcopy
 
 #from camera import Camera
@@ -298,6 +300,11 @@ class Geometry:
         return [trigger for trigger in self.fullGeometry["triggers"] if self.isRectRectColliding(inputRect, trigger["points"])]
 
     def calcContactDamage(self, inputRect: list[Vector2]):
-        damages = [1 for enemy in self.gameEngine.enemies if self.isRectRectColliding(inputRect, enemy.getRectBB())]
+        damages = []
+        for index, enemy in enumerate(self.gameEngine.enemies):
+            if self.isRectRectColliding(inputRect, enemy.getRectBB()):
+                damages.append(enemy.collisionDamage)
+                if isinstance(enemy, src.enemies.RedOrb):
+                    self.gameEngine.enemiesToBeDeleted.append(index)
         damages.append(0)
         return max(damages)

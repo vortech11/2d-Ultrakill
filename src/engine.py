@@ -46,6 +46,10 @@ class GameEngine:
                 match enemyTrigger["enemyType"]:
                     case "Filth":
                         spawnedEnemy = src.enemies.Filth(self, Vector2(startPos))
+                    case "Stray":
+                        spawnedEnemy = src.enemies.Stray(self, Vector2(startPos))
+                    case "Maurice":
+                        spawnedEnemy = src.enemies.Maurice(self, Vector2(startPos))
                 self.enemies.append(spawnedEnemy)
                 
     def startLevel(self, levelName):
@@ -141,6 +145,7 @@ class GameEngine:
         self.uiHandler = UiHandler(self)
 
         self.enemies = []
+        self.enemiesToBeDeleted = []
         self.images = self.loadImages()
         
         self.startLevel(startLevel)
@@ -151,12 +156,13 @@ class GameEngine:
     def hurtEnemy(self, enemyIndex, damage):
         self.enemies[enemyIndex].health -= damage
         if self.enemies[enemyIndex].health <= 0:
-            self.enemies[enemyIndex] = None
+            #enemy = self.enemies[enemyIndex]
+            self.enemiesToBeDeleted.append(enemyIndex)
+            #del enemy
 
     def tickTriggers(self):
         for trigger in self.world.fullGeometry["triggers"]:
             if not trigger["active"]:
-                print(trigger)
                 continue
             match trigger["onEvent"]:
                 case "playerEnter":
@@ -169,6 +175,9 @@ class GameEngine:
             
         
     def killDeadEnemies(self):
+        for index in self.enemiesToBeDeleted:
+            self.enemies[index] = None
+        self.enemiesToBeDeleted = []
         self.enemies = [enemy for enemy in self.enemies if not enemy is None]
 
     def tickWorld(self, dt):
@@ -180,10 +189,13 @@ class GameEngine:
     def renderEnemies(self):
         for enemy in self.enemies:
             enemy.renderSprite()
+            #enemy.renderHitbox((255, 255, 255))
             
     def deleteAllEnemies(self):
-        for index in range(len(self.enemies)):
-            del self.enemies[index]
+        self.enemies = []
+        self.enemiesToBeDeleted = []
+        #for index in range(len(self.enemies)):
+        #    del self.enemies[index]
     
     def shutdown(self):
         pygame.quit()
