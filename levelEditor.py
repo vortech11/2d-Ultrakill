@@ -20,6 +20,7 @@ class modes(Enum):
     enemySpawn = 6
     playerSpawn = 7
     setRenderLayer = 8
+    getPoints = 9
     
 class colors(Enum):
     darkGrey = (50, 50, 50)
@@ -92,6 +93,8 @@ class Editor():
                     self.mode = modes.playerSpawn
                 if event.key == pygame.K_BACKSLASH:
                     self.mode = modes.setRenderLayer
+                if event.key == pygame.K_m:
+                    self.mode = modes.getPoints
                 if event.key == pygame.K_ESCAPE:
                     self.mode = modes.normal
                     self.pointData = []
@@ -245,7 +248,10 @@ class Editor():
                     self.renderLayer = 0
                 if keys[pygame.K_1]:
                     self.renderLayer = 1
-
+            case modes.getPoints:
+                self.displayText = f""
+                if mouseKeys[1]:
+                    print(self.engine.camera.unTransformPoint(mousePos))
                     
             case modes.normal:
                 self.displayText = ""

@@ -1,7 +1,7 @@
 from pygame import Vector2
 
 from src.enemies import Character
-from src.weapons import Pistol
+from src.weapons import Pistol, Shotgun
 
 from math import sqrt, copysign
 
@@ -38,6 +38,7 @@ class Player(Character):
         self.collectables = [False, False]
         self.allWeapons = [
             Pistol(self.gameEngine)
+            #Shotgun(self.gameEngine)
         ]
         self.unlockedWeapons = [
             self.allWeapons[0]
@@ -72,7 +73,11 @@ class Player(Character):
         self.startSlam = 0
         self.walled = False
         self.closeGrounded = False
-        
+
+    def heal(self, ammount):
+        self.health += ammount
+        self.health = self.clamp(0, self.health, self.totalhealth)
+
     def restartLevel(self):
         self.teleportPlayer(self.gameEngine.world.fullGeometry["player"]["startpos"])
         self.velosity = Vector2(0, 0)
@@ -180,7 +185,7 @@ class Player(Character):
                     case "activateTrigger":
                         self.gameEngine.world.fullGeometry["triggers"][trigger["perameters"][index][0]]["active"] = True
                     case "move":
-                        self.gameEngine.triggerEntities(trigger["perameters"][index][0])
+                        self.gameEngine.triggerEntities(trigger["perameters"][index])
 
         if trigger["triggerOnce"]:
             trigger["active"] = False

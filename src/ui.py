@@ -88,7 +88,7 @@ class UiHandler:
         screen.blit(titleCard, titlerect)
         screen.blit(caption, captionrect)
         if mouseDown[1]:
-            self.gameEngine.startLevel("level.json")
+            self.gameEngine.startLevel("prelude.json")
         
     def renderUi(self, player, screen, screenSize:Vector2):
         self.renderPlayerUi(player, screen, screenSize)

@@ -103,6 +103,8 @@ class Geometry:
         for index, rect in enumerate(outEntityGeometry):
             points = [rect["points"][0].x, rect["points"][0].y, rect["points"][1].x, rect["points"][1].y]
             outEntityGeometry[index]["points"] = points
+            outEntityGeometry[index]["start"] = tuple(rect["start"])
+            outEntityGeometry[index]["end"] = tuple(rect["end"])
             del outEntityGeometry[index]["renderPoints"]
             del outEntityGeometry[index]["position"]
 

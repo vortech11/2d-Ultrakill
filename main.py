@@ -60,6 +60,7 @@ while engine.running:
         #engine.player.renderHitbox((255, 0, 0))
         engine.player.shootWeapons(Vector2(pygame.mouse.get_pos()), None, mouseButtons)
         engine.killDeadEnemies()
+        engine.killDeadProjectiles()
         engine.uiHandler.renderUi(engine.player, engine.screenFrame, engine.screenSize)
     
     engine.camera.renderFPS(engine.clock, engine.screenFrame)

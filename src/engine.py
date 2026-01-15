@@ -127,6 +127,8 @@ class GameEngine:
         self.clock = pygame.time.Clock()
         self.running = True
 
+        self.bloodRadius = 1000
+
         self.dt = 0
         self.speed = 1
         self.gameSlowInfo = []
@@ -148,6 +150,9 @@ class GameEngine:
         self.enemiesToBeDeleted = []
         self.images = self.loadImages()
         
+        self.projectiles = []
+        self.projectilesToBeDeleted = []
+
         self.startLevel(startLevel)
 
     def updateDeltaTime(self):
@@ -180,11 +185,19 @@ class GameEngine:
         self.enemiesToBeDeleted = []
         self.enemies = [enemy for enemy in self.enemies if not enemy is None]
 
+    def killDeadProjectiles(self):
+        for index in self.projectilesToBeDeleted:
+            self.projectiles[index] = None
+        self.projectilesToBeDeleted = []
+        self.projectiles = [projectile for projectile in self.projectiles if not projectile is None]
+
     def tickWorld(self, dt):
         self.tickTriggers()
         self.world.updateEntityPositions()
         for enemy in self.enemies:
             enemy.move(dt)
+        for projectile in self.projectiles:
+            projectile.move(dt)
 
     def renderEnemies(self):
         for enemy in self.enemies:
@@ -194,6 +207,8 @@ class GameEngine:
     def deleteAllEnemies(self):
         self.enemies = []
         self.enemiesToBeDeleted = []
+        self.projectiles = []
+        self.projectilesToBeDeleted = []
         #for index in range(len(self.enemies)):
         #    del self.enemies[index]
     
