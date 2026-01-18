@@ -171,9 +171,8 @@ class Player(Character):
                     case "hurt":
                         self.health -= trigger["perameters"][index][0]
                     case "levelEnd":
-                        if any(self.collectables):
-                            self.gameEngine.levelWin = True
-                            self.gameEngine.levelToBeLoaded = trigger["perameters"][index][0]
+                        self.gameEngine.levelWin = True
+                        self.gameEngine.levelToBeLoaded = trigger["perameters"][index][0]
                     case "collectable":
                         self.collectables[trigger["perameters"][index][0]] = True
                     case "powerup":
@@ -308,8 +307,10 @@ class Player(Character):
 
         camera.position += (self.position - camera.position) * 0.2
         
-    def shootWeapons(self, mousePos:Vector2, currentMouseButttons, mouseDownEvents):
+    def shootWeapons(self, mousePos:Vector2, currentMouseButttons, mouseDownEvents, dt):
         globalMousePos = self.gameEngine.camera.unTransformPoint(mousePos)
+        for weapon in self.unlockedWeapons:
+            weapon.updateWait(dt)
         if mouseDownEvents[1]:
             self.unlockedWeapons[self.currentWeapon].shootPrimary(self.position, globalMousePos - self.position)
         

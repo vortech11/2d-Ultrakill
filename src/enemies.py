@@ -17,8 +17,8 @@ class Character:
 
         self.collisionDamage = collisionDamage
 
-        self.velosityUpdaters: list[callable[[int], None]] = []
-        self.collisionResolvers: list[callable[[int], None]] = []
+        self.velosityUpdaters: list[callable[[int], None]] = [] # type: ignore
+        self.collisionResolvers: list[callable[[int], None]] = [] # type: ignore
 
         self.collisionResolvers.append(self.updatePositionResolveCollition)
         self.targetPos: Vector2 = Vector2(0, 0)
@@ -194,7 +194,7 @@ class Walking(Character):
 
 class Filth(Walking):
     def __init__(self, gameEngine, startPos: Vector2):
-        super().__init__(gameEngine, startPos, [Vector2(-20, 0), Vector2(20, 0), Vector2(20, 80), Vector2(-20, 80)], 0.5, 500, 1)
+        super().__init__(gameEngine, startPos, [Vector2(-20, 0), Vector2(20, 0), Vector2(20, 80), Vector2(-20, 80)], 0.5 * 4, 500, 1)
         self.velosityUpdaters.insert(0, self.updateTargetPos)
         
     def updateTargetPos(self, dt):
@@ -202,7 +202,7 @@ class Filth(Walking):
     
 class Stray(Walking):
     def __init__(self, gameEngine, startPos: Vector2):
-        super().__init__(gameEngine, startPos, [Vector2(-20, 0), Vector2(20, 0), Vector2(20, 80), Vector2(-20, 80)], 0.5, 500)
+        super().__init__(gameEngine, startPos, [Vector2(-20, 0), Vector2(20, 0), Vector2(20, 80), Vector2(-20, 80)], 0.5 * 4, 500)
         self.velosityUpdaters.insert(0, self.updateTargetPos)
         self.walkingDistance = 500
         self.shootingWait = 2

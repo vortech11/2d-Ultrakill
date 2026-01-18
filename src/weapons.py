@@ -33,16 +33,30 @@ class Weapon:
 class Pistol(Weapon):
     def __init__(self, gameEngine):
         super().__init__(gameEngine, 1, 1)
+        self.totalShootWait = 0.2
+        self.shootWait = 0
+        
+    def updateWait(self, dt):
+        self.shootWait -= dt
         
     def shootPrimary(self, position, direction):
-        endPoint = applyHitscanDamage(self.gameEngine, position, direction, self.baseDamage)
-        self.gameEngine.world.renderLine(self.gameEngine.camera, self.gameEngine.screenFrame, (250, 231, 22), position, endPoint)
+        if self.shootWait <= 0:
+            endPoint = applyHitscanDamage(self.gameEngine, position, direction, self.baseDamage)
+            self.gameEngine.world.renderLine(self.gameEngine.camera, self.gameEngine.screenFrame, (250, 231, 22), position, endPoint)
+            self.shootWait = self.totalShootWait
 
 class Shotgun(Weapon):
     def __init__(self, gameEngine):
         super().__init__(gameEngine, 0.25, 1)
         self.shots = 1
+        self.totalShootWait = 1
+        self.shootWait = 0
+
+    def updateWait(self, dt):
+        self.shootWait -= dt
 
     def shootPrimary(self, position, direction:Vector2):
-        for i in range(self.shots):
-            self.gameEngine.projectiles.append(Projectile(self.gameEngine, position.copy(), direction.normalize().rotate_rad((i-(self.shots - 1)) * 1)))
+        if self.shootWait <= 0:
+            for i in range(self.shots):
+                self.gameEngine.projectiles.append(Projectile(self.gameEngine, position.copy(), direction.normalize().rotate_rad((i-(self.shots - 1)) * 1)))
+            self.shootWait = self.totalShootWait
